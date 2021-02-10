@@ -13,7 +13,8 @@ const defaultNavOptions = {
     headerStyle: {
       backgroundColor: Platform.OS === 'android' ? '#C39EAA' : ''
     },
-    headerTintColor: Platform.OS === 'android' ? 'white' : 'black'
+    headerTintColor: Platform.OS === 'android' ? 'transparent' : 'black',
+
   };
 
   const MainNavigator = createStackNavigator({
@@ -27,7 +28,11 @@ const defaultNavOptions = {
         screen: RegisterScreen
       },
       Recipe:{
-        screen: RecipeScreen
+        screen: RecipeScreen,
+        navigationOptions:{
+          headerLeft: null,
+          headerTitleAlign:'center'
+        }
       },
       RecipeDetail:{
         screen: RecipeDetailScreen

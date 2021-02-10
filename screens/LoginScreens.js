@@ -12,11 +12,14 @@ const LoginScreen = props =>{
             </View>
             <View style={styles.inputContainer}>
                 <TextInputLayout
-                label = 'username'
+                label = 'Email'
+                email = {true}
+                required = {true}
                 />
                 <TextInputLayout
                 label = 'password'
                 isPassword = {true}
+                required = {true}
                 />
             </View>
             <View style={styles.buttonContainer}>
@@ -25,12 +28,14 @@ const LoginScreen = props =>{
                 containerStyle={{marginTop:50,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'#F3717F',marginHorizontal:20}}
                 titleStyle={{fontSize:22}}
+                onPress={()=>{
+                    props.navigation.navigate('Recipe')
+                }}
                 />
-                <Text style={{fontSize:16,marginTop:10,marginBottom:20}}>Don't have an account? 
-                    <Text style={{color: '#F3717F'}} 
-                      onPress={()=>console.log('we are pressing register')}>
-                      Register Now!
-                    </Text> 
+                <Text style={{fontSize:16,marginTop:10,marginBottom:20}}>Don't have an account? <Text style={{color: '#F3717F'}} 
+                      onPress={()=>
+                        props.navigation.navigate('Register')
+                      }>Register Now!</Text> 
                 </Text>
             <View style={{
                 borderStyle: 'dotted',
@@ -43,7 +48,7 @@ const LoginScreen = props =>{
             </View>
             <Button
                 title='Sign in with another method'
-                containerStyle={{marginTop:30,width:'100%'}}
+                containerStyle={{marginVertical:30,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'black',marginHorizontal:20}}
                 titleStyle={{fontSize:22}}
                 />

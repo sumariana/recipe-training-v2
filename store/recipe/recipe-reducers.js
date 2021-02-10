@@ -1,5 +1,7 @@
+import RECIPE from '../../models/recipe_dummy';
+
 const initialState = {
-    allRecipe: [],
+    allRecipe: RECIPE,
     allFavoriteRecipe: []
 };
 

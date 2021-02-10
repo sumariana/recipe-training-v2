@@ -42,14 +42,6 @@ const TextInputLayout = props =>{
             isValidated = false;
             errorMessage = 'Email format is wrong'
         }
-        if (props.min != null && +text < props.min) {
-            isValidated = false;
-            errorMessage = 'field must be at least'.concat(props.min).concat('character')
-        }
-        if (props.max != null && +text > props.max) {
-            isValidated = false;
-            errorMessage = 'field max'.concat(props.min).concat('character')
-        }
         if (props.minLength != null && text.length < props.minLength) {
             isValidated = false;
             errorMessage = 'field must be at least'.concat(props.min).concat('character')
@@ -87,6 +79,7 @@ const TextInputLayout = props =>{
                     style={styles.input}
                     value={inputState.value}
                     onChangeText={textChangeHandler}
+                    onTouchStart={lostFocusHandler}
                     onBlur={lostFocusHandler}
                     placeholder={props.label}
                     secureTextEntry = {secure}
@@ -100,8 +93,8 @@ const TextInputLayout = props =>{
                 onPress={() => setSecure(!secure)} />
                 }
             </View>
-            {!inputState.isValid && inputState.touched && (
-            <Text>
+            {!inputState.isValid && inputState.touched && inputState.errorMessage !=='' && (
+            <Text style={{marginStart: 20,color:'red'}}>
                 {inputState.errorMessage}
             </Text>)}
         </View>
