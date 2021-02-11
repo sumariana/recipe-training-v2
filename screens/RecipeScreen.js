@@ -2,9 +2,11 @@ import React from 'react'
 import { StyleSheet, View, Text,FlatList,Image } from 'react-native'
 import {useSelector, useDispatch} from 'react-redux';
 import RecipeItem from '../component/recipe-item';
-import Animated from 'react-native-reanimated';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { Button } from 'react-native-elements';
+import {
+    TouchableOpacity,
+  } from 'react-native-gesture-handler';
 
 const RecipeScreen = props =>{
     const recipeList = useSelector(state=>state.recipeReducer.allRecipe)
@@ -23,24 +25,43 @@ const RecipeScreen = props =>{
                 marginTop:20
             }}>
             </View>
+            <TouchableOpacity
+            containerStyle={{width: '100%'}}
+            onPress={()=>{
+                props.navigation.navigate('ProfileScreen')
+            }} >
             <Button
                 title='Profile'
                 containerStyle={{marginTop:20,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                 titleStyle={{fontSize:16, color: 'black'}}
                 />
+            </TouchableOpacity>
+            <TouchableOpacity
+            containerStyle={{width: '100%'}}
+            onPress={()=>{
+                props.navigation.navigate('FavoriteScreen')
+            }} 
+            >
             <Button
                 title='Favorite'
                 containerStyle={{marginTop:10,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                 titleStyle={{fontSize:16, color: 'black'}}
                 />
+            </TouchableOpacity>
+            <TouchableOpacity
+            containerStyle={{width: '100%'}}
+            onPress={()=>{
+                props.navigation.goBack()
+            }} >
             <Button
                 title='Log out'
                 containerStyle={{marginVertical:10,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'red',marginHorizontal:20,borderWidth:1,borderColor:'transparent'}}
                 titleStyle={{fontSize:16, color: 'white'}}
                 />
+            </TouchableOpacity>
         </View>
     )
     return (
@@ -53,6 +74,9 @@ const RecipeScreen = props =>{
                     <RecipeItem
                     image = {itemData.item.imageUrl}
                     title = {itemData.item.name}
+                    onSelectRecipe={()=>{
+                        props.navigation.navigate('RecipeDetail',{recipe_id: itemData.item.id})
+                    }}
                     />
                 )}
             />
@@ -68,7 +92,7 @@ const RecipeScreen = props =>{
 
 RecipeScreen.navigationOptions = navData => {
     return {
-      headerTitle: navData.navigation.getParam('Recipe')
+      headerTitle: 'Recipe'
     };
   };
 

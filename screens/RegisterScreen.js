@@ -58,7 +58,7 @@ const RegisterScreen = props =>{
 
 RegisterScreen.navigationOptions = navData => {
     return {
-      headerTitle: navData.navigation.getParam('Register')
+      headerTitle: 'Register'
     };
   };
 

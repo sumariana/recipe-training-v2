@@ -5,7 +5,7 @@ import { Icon } from 'react-native-elements'
 
 const RecipeItem = props =>{
     return (
-        <TouchableOpacity onPress={()=>{}} TouchableOpacity={0.1}>
+        <TouchableOpacity onPress={props.onSelectRecipe} TouchableOpacity={0.1}>
             <View style={styles.card}>
                 <ImageBackground style={styles.image} source={{ uri: props.image }} />
                 <Text style={styles.name}>{props.title}</Text>

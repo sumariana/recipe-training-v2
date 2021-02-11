@@ -7,7 +7,8 @@ import LoginScreen from '../screens/LoginScreens';
 import RegisterScreen from '../screens/RegisterScreen';
 import RecipeScreen from '../screens/RecipeScreen';
 import RecipeDetailScreen from '../screens/RecipeDetailScreen';
-import FavoriteScreen from '../screens/LoginScreens';
+import FavoriteScreen from '../screens/FavoriteScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const defaultNavOptions = {
     headerStyle: {
@@ -35,11 +36,23 @@ const defaultNavOptions = {
         }
       },
       RecipeDetail:{
-        screen: RecipeDetailScreen
+        screen: RecipeDetailScreen,
+        navigationOptions:{
+            header : null
+        }
       },
       FavoriteScreen:{
-        screen: FavoriteScreen
+        screen: FavoriteScreen,
+        navigationOptions:{
+          headerTitleAlign:'center'
+        }
       },
+      ProfileScreen:{
+        screen: ProfileScreen,
+        navigationOptions:{
+          headerTitleAlign:'center'
+        }
+      }
   },{
       defaultNavOptions: defaultNavOptions
   });
