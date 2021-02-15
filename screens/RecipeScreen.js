@@ -1,16 +1,18 @@
-import React from 'react'
+import React,{useCallback, useEffect} from 'react'
 import { StyleSheet, View, Text,FlatList,Image } from 'react-native'
 import {useSelector, useDispatch} from 'react-redux';
 import RecipeItem from '../component/recipe-item';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { Button } from 'react-native-elements';
-import {
-    TouchableOpacity,
-  } from 'react-native-gesture-handler';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+
+import * as recipeAction from '../store/recipe/recipe-action';
+import * as errorHandler from '../store/common/errorHandler';
 
 const RecipeScreen = props =>{
     const recipeList = useSelector(state=>state.recipeReducer.allRecipe)
     const sheetRef = React.useRef(null);
+    const dispatch = useDispatch()
     const bottomSheet = () => (
         <View style={styles.bottomSlider}>
             <Image style={{ width:40,height:10,marginTop:-20 }} source={require('../assets/images/slider.png')}/>
@@ -63,7 +65,20 @@ const RecipeScreen = props =>{
                 />
             </TouchableOpacity>
         </View>
-    )
+    );
+
+    const loadProducts = useCallback(async()=>{
+        try{
+            await dispatch(recipeAction.getRecipeList());
+        }catch(err){
+            errorHandler.showErrorAlert(err.message)
+        }
+    },[dispatch,loadProducts])
+
+    useEffect(()=>{
+        loadProducts()
+    },[dispatch,loadProducts])
+
     return (
         <View style={{flex:1}}>
             <FlatList

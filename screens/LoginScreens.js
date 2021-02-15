@@ -1,10 +1,69 @@
-import React from 'react'
-import { StyleSheet, View, Text,Image,ScrollView } from 'react-native'
+import React,{useCallback, useReducer,useState} from 'react';
+import { StyleSheet, View, Text,Image,ScrollView } from 'react-native';
 import { Button } from 'react-native-elements';
+import { useSelector, useDispatch } from 'react-redux';
 
-import TextInputLayout from '../component/input-layout'
+import TextInputLayout from '../component/input-layout';
+import * as AuthAction from '../store/auth/auth-action';
+import * as errorHandler from '../store/common/errorHandler';
+
+
+const LOGIN = 'LOGIN';
+
+const formReducer = (state,action)=>{
+    if(action.type===LOGIN){
+        const updatedValues = {
+            ...state.inputValues,
+            [action.input]: action.value
+        }
+        const updatedValidities={
+            ...state.inputValidities,
+            [action.input]: action.isValid
+        }
+        let updatedFormIsValid = true
+        for (const key in updatedValidities) {
+            updatedFormIsValid = updatedFormIsValid && updatedValidities[key];
+        }
+        return {
+            formIsValid : updatedFormIsValid,
+            inputValues: updatedValues,
+            inputValidities: updatedValidities
+        };
+    }
+    return state
+}
 
 const LoginScreen = props =>{
+    const dispatch = useDispatch()
+    const [isLoading,setIsLoading]=useState(false)
+    const [formState, dispatchFormState]=useReducer(formReducer,{
+        inputValues:{
+            email: '',
+            password:''
+        },
+        inputValidities:{
+            email:false,
+            password:false
+        },
+        formIsValid:false
+    });
+
+    const inputChangeHandler = useCallback((inputIdentifier, inputValue,inputValidity)=>{
+        dispatchFormState({type: LOGIN,value: inputValue,isValid: inputValidity,input:inputIdentifier});
+    },[dispatchFormState]);
+
+    const doLogin = async() =>{
+        setIsLoading(true)
+        try{
+            await dispatch(AuthAction.doLogin(formState.inputValues.email,formState.inputValues.password))
+            setIsLoading(false)
+            props.navigation.navigate('Recipe')
+        }catch(err){
+            setIsLoading(false)
+            errorHandler.showErrorAlert(err.message)
+        }
+    }
+
     return (
         <ScrollView contentContainerStyle = {styles.screen}>
             <View style={styles.imageContainer}>
@@ -12,14 +71,18 @@ const LoginScreen = props =>{
             </View>
             <View style={styles.inputContainer}>
                 <TextInputLayout
+                id = 'email'
                 label = 'Email'
                 email = {true}
                 required = {true}
+                onInputChange={inputChangeHandler}
                 />
                 <TextInputLayout
+                id='password'
                 label = 'password'
                 isPassword = {true}
                 required = {true}
+                onInputChange={inputChangeHandler}
                 />
             </View>
             <View style={styles.buttonContainer}>
@@ -28,11 +91,12 @@ const LoginScreen = props =>{
                 containerStyle={{marginTop:50,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'#F3717F',marginHorizontal:20}}
                 titleStyle={{fontSize:22}}
-                onPress={()=>{
-                    props.navigation.navigate('Recipe')
-                }}
+                disabled = {!formState.formIsValid}
+                loading={isLoading}
+                loadingStyle={{width:22,height:22}}
+                onPress={doLogin}
                 />
-                <Text style={{fontSize:16,marginTop:10,marginBottom:20}}>Don't have an account? <Text style={{color: '#F3717F'}} 
+                <Text style={{fontSize:16,marginTop:10,marginBottom:20}}>Don't have an account? <Text style={{color: '#F3717F',fontWeight:'bold'}} 
                       onPress={()=>
                         props.navigation.navigate('Register')
                       }>Register Now!</Text> 

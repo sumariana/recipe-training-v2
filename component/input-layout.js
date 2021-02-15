@@ -25,7 +25,7 @@ const TextInputLayout = props =>{
 
     const [inputState,dispatchInput] = useReducer(inputReducer,{
         value: props.initialValue ? props.initialValue : '',
-        isValid: props.initialValidated,
+        isValid: props.initialValidated ? props.initialValidated : false,
         errorMessage: '',
         touched: false
     });
@@ -54,13 +54,13 @@ const TextInputLayout = props =>{
         })
     };
 
-    // const { onInputChange } = props
+    const { onInputChange,id } = props
 
-    // useEffect(()=>{
-    //     if(inputState.touched){
-    //         onInputChange(inputState.value, inputState.isValid)
-    //     }
-    // },[inputState,onInputChange])
+    useEffect(()=>{
+        if(inputState.touched){
+            onInputChange(id,inputState.value, inputState.isValid)
+        }
+    },[inputState,onInputChange,id])
 
     const lostFocusHandler = () =>{
         dispatchInput({

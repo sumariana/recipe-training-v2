@@ -1,13 +1,17 @@
-import React,{useEffect,useState} from 'react'
+import React,{useCallback, useEffect,useState} from 'react'
 import { StyleSheet, View, Text,Dimensions,Animated,ScrollView,Image,TouchableOpacity } from 'react-native'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 
 const HEADER_EXPANDED_HEIGHT = 200
 const HEADER_COLLAPSED_HEIGHT = 80
 
+import * as recipeAction from '../store/recipe/recipe-action';
+import * as errorHandler from '../store/common/errorHandler';
+
 const RecipeDetailScreen = props =>{
     const recipe = useSelector(state=>state.recipeReducer.Recipe)
     const recipeId = props.navigation.getParam('recipe_id')
+    const dispatch = useDispatch()
     const [isFavorite,setIsFavorite] = useState(false)
     
     const { width: SCREEN_WIDTH } = Dimensions.get("screen")
@@ -32,6 +36,18 @@ const RecipeDetailScreen = props =>{
         outputRange: [0, 0.5],
         extrapolate: 'clamp'
       });
+
+      const loadDetail = useCallback(async()=>{
+          try{
+              await dispatch(recipeAction.getRecipeDetail(recipeId))
+          }catch(err){
+            errorHandler.showErrorAlert(err.message)
+          }
+      },[dispatch,loadDetail,recipeId]);
+
+      useEffect(()=>{
+          loadDetail()
+      },[dispatch,loadDetail,recipeId])
 
     return (
         <View style={{flex:1}}>
