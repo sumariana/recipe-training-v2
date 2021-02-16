@@ -37,14 +37,23 @@ const TextInputLayout = props =>{
         if (props.required && text.trim().length === 0) {
             isValidated = false;
             errorMessage = 'field can\'t be empty'
-        }
-        if (props.email && !emailRegex.test(text.toLowerCase())) {
-            isValidated = false;
-            errorMessage = 'Email format is wrong'
-        }
-        if (props.minLength != null && text.length < props.minLength) {
-            isValidated = false;
-            errorMessage = 'field must be at least'.concat(props.min).concat('character')
+        }else{
+            if (props.minLength != null && text.length < props.minLength) {
+                isValidated = false;
+                errorMessage = `field must be at least ${props.minLength} character`
+            }
+            if (props.maxLength != null && text.length < props.maxLength) {
+                isValidated = false;
+                errorMessage = `field max of ${props.maxLength} character`
+            }
+            if (props.email && !emailRegex.test(text.toLowerCase())) {
+                isValidated = false;
+                errorMessage = 'Email format is wrong'
+            }
+            if(props.isRepassword && text.toLowerCase() !== props.passwordValue.toLowerCase()){
+                isValidated = false
+                errorMessage = 'Password is not matched'
+            }
         }
 
         dispatchInput({type: INPUT_CHANGE,
@@ -62,10 +71,10 @@ const TextInputLayout = props =>{
         }
     },[inputState,onInputChange,id])
 
-    const lostFocusHandler = () =>{
+    const FocusHandler = () =>{
         dispatchInput({
             type: INPUT_BLUR
-        })
+        });
     }
 
     const [secure, setSecure] = useState(props.isPassword!=null ? true : false)
@@ -79,10 +88,10 @@ const TextInputLayout = props =>{
                     style={styles.input}
                     value={inputState.value}
                     onChangeText={textChangeHandler}
-                    onTouchStart={lostFocusHandler}
-                    onBlur={lostFocusHandler}
+                    onTouchStart={FocusHandler}
                     placeholder={props.label}
                     secureTextEntry = {secure}
+                    
                 />
                 {
                 props.isPassword &&
@@ -93,7 +102,7 @@ const TextInputLayout = props =>{
                 onPress={() => setSecure(!secure)} />
                 }
             </View>
-            {!inputState.isValid && inputState.touched && inputState.errorMessage !=='' && (
+            {!inputState.isValid && inputState.touched && inputState.errorMessage!=='' && (
             <Text style={{marginStart: 20,color:'red'}}>
                 {inputState.errorMessage}
             </Text>)}

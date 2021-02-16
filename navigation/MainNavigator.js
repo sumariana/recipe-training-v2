@@ -22,7 +22,7 @@ const defaultNavOptions = {
       Login:{
           screen: LoginScreen,
           navigationOptions:{
-            header : null
+            headerShown:false
         }
       },
       Register:{
@@ -38,7 +38,7 @@ const defaultNavOptions = {
       RecipeDetail:{
         screen: RecipeDetailScreen,
         navigationOptions:{
-            header : null
+          headerShown:false
         }
       },
       FavoriteScreen:{

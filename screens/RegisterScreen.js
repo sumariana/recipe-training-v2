@@ -1,5 +1,5 @@
 import React,{useCallback,useReducer,useState} from 'react'
-import { StyleSheet, View, Text,ScrollView } from 'react-native'
+import { StyleSheet, View, Text,ScrollView, Alert } from 'react-native'
 import { Button, CheckBox } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -34,6 +34,7 @@ const formReducer = (state,action)=>{
 const RegisterScreen = props =>{
     const [isChecked,setIsChecked]=useState(false)
     const dispatch = useDispatch()
+    const [isLoading,setIsLoading]=useState(false)
     const [formState, dispatchFormState]=useReducer(formReducer,{
         inputValues:{
             name:'',
@@ -56,6 +57,23 @@ const RegisterScreen = props =>{
         dispatchFormState({type: REGISTER,value: inputValue,isValid: inputValidity,input:inputIdentifier});
     },[dispatchFormState]);
 
+    const doRegister = async() =>{
+        setIsLoading(true)
+        try{
+            await dispatch(AuthAction.doRegister(formState.inputValues))
+            setIsLoading(false)
+            Alert.alert( "Register Success", "Register success you will redirect to login page", [
+                { 
+                    text: "OK",onPress: ()=>{
+                        props.navigation.goBack()
+                    }
+                }
+            ]);
+        }catch(err){
+            setIsLoading(false)
+            errorHandler.showErrorAlert(err.message)
+        }
+    }
 
     return (
         <View style={{ flexDirection:'column' ,backgroundColor:'white',flex:1}}>
@@ -71,6 +89,9 @@ const RegisterScreen = props =>{
                     id ='phone'
                     label = 'Phone'
                     required = {true}
+                    minLength = {13}
+                    maxlength = {13}
+                    keyboardType = 'number-pad'
                     onInputChange={inputChangeHandler}
                 />
                 <TextInputLayout
@@ -85,6 +106,7 @@ const RegisterScreen = props =>{
                     label = 'Password'
                     required = {true}
                     isPassword = {true}
+                    minLength = {6}
                     onInputChange={inputChangeHandler}
                 />
                 <TextInputLayout
@@ -92,6 +114,9 @@ const RegisterScreen = props =>{
                     label = 'Re-Password'
                     required = {true}
                     isPassword = {true}
+                    isRepassword = {true}
+                    passwordValue = {formState.inputValues.password}
+                    minLength = {6}
                     onInputChange={inputChangeHandler}
                 />
                 <View style={{flexDirection:'row',alignItems:'center'}}>
@@ -115,9 +140,9 @@ const RegisterScreen = props =>{
             buttonStyle={{borderRadius:20,backgroundColor:'#F3717F',marginHorizontal:20}}
             titleStyle={{fontSize:22}}
             disabled={!(formState.formIsValid && isChecked)}
-            onPress={()=>{
-                dispatch(AuthAction.doRegister(formState.inputValues))
-            }}
+            onPress={doRegister}
+            loading={isLoading}
+            loadingStyle={{width:24,height:24}}
         />
         </View>
     );

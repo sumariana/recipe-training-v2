@@ -1,21 +1,24 @@
-import React,{useCallback, useEffect} from 'react'
-import { StyleSheet, View, Text,FlatList,Image } from 'react-native'
+import React,{useCallback, useEffect,useState} from 'react'
+import { StyleSheet, View, Text,FlatList,Modal,TouchableHighlight } from 'react-native'
 import {useSelector, useDispatch} from 'react-redux';
 import RecipeItem from '../component/recipe-item';
 import BottomSheet from 'reanimated-bottom-sheet';
-import { Button } from 'react-native-elements';
+import { Button,Image } from 'react-native-elements';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
 import * as recipeAction from '../store/recipe/recipe-action';
 import * as errorHandler from '../store/common/errorHandler';
+import RecipeResponse from '../models/recipe_model';
 
 const RecipeScreen = props =>{
     const recipeList = useSelector(state=>state.recipeReducer.allRecipe)
+    const [isShowModal,setIsShowModal] = useState(false)
+    const [selectedItem,setSelectedItem] = useState(new RecipeResponse())
     const sheetRef = React.useRef(null);
     const dispatch = useDispatch()
     const bottomSheet = () => (
         <View style={styles.bottomSlider}>
-            <Image style={{ width:40,height:10,marginTop:-20 }} source={require('../assets/images/slider.png')}/>
+            <Image containerStyle={{ width:40,height:10,marginTop:-20 }} source={require('../assets/images/slider.png')}/>
             <Text style={{fontSize:18,marginTop:10, fontWeight:'bold'}}>MENU</Text>
             <View style={{
                 borderStyle: 'dotted',
@@ -76,25 +79,68 @@ const RecipeScreen = props =>{
     },[dispatch,loadProducts])
 
     useEffect(()=>{
+        const willFocusSub = props.navigation.addListener(
+            'willFocus',
+            loadProducts
+          );
+      
+          return () => {
+            willFocusSub.remove();
+          };
+    },[loadProducts])
+
+    useEffect(()=>{
         loadProducts()
     },[dispatch,loadProducts])
-
     return (
         <View style={{flex:1}}>
             <FlatList
             contentContainerStyle={{paddingBottom:50}}
                 data={recipeList}
-                keyExtractor={item=> item.id}
+                keyExtractor={item=> item.id.toString()}
                 renderItem={(itemData)=>(
                     <RecipeItem
                     image = {itemData.item.imageUrl}
                     title = {itemData.item.name}
                     onSelectRecipe={()=>{
-                        props.navigation.navigate('RecipeDetail',{recipe_id: itemData.item.id})
+                        setSelectedItem(itemData.item)
+                        setIsShowModal(true)
                     }}
                     />
                 )}
             />
+            <Modal
+             animationType='fade'
+             transparent={true}
+             visible={isShowModal}
+             >
+                 <View style={styles.modalView}>
+                     <View style={{backgroundColor:'black',flex:1,opacity:0.5}}>
+
+                     </View>
+                     <View style={styles.modalCard}>
+                        <Image containerStyle={styles.image} source={{ uri:  selectedItem.imageUrl}} />
+                        <View style={{position:'absolute',height:20,width:'100%',alignItems:'flex-end',padding:10}}>
+                            <Image containerStyle={{width:24,height:24}} source={require('../assets/images/close.png')} onPress={()=>{
+                                setIsShowModal(false)
+                            }}/>
+                        </View>
+                        <View style={{marginHorizontal:25,marginTop:15,marginBottom:25}}>
+                            <Text style={{fontSize:16, textAlign:'center'}}>{selectedItem.description}</Text>
+                            <Button
+                                title='Detail'
+                                containerStyle={{marginTop:10}}
+                                buttonStyle={{borderRadius:20,backgroundColor:'#F3717F',marginHorizontal:20}}
+                                titleStyle={{fontSize:16}}
+                                onPress={()=>{
+                                    setIsShowModal(false)
+                                    props.navigation.navigate('RecipeDetail',{recipe_id: selectedItem.id})
+                                }}
+                                />
+                        </View>
+                     </View>
+                 </View>
+            </Modal>
             <BottomSheet
             ref = {sheetRef}
             snapPoints={[30, 300, 30]}
@@ -112,6 +158,22 @@ RecipeScreen.navigationOptions = navData => {
   };
 
 const styles = StyleSheet.create({
+    modalView:{
+        flex: 1,
+        justifyContent:'center'
+    },
+    modalCard:{
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {width: 0,height: 2},
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        position:'absolute'
+    },
     bottomSlider:{
         height:'100%',
         width:'100%',
@@ -126,7 +188,14 @@ const styles = StyleSheet.create({
         shadowOffset: {width: 0, height: 2},
         shadowRadius: 8,
         elevation: 10,
-    }
+    },
+    image:{
+        width: '100%',
+        height:180,
+        borderTopLeftRadius:10,
+        borderTopRightRadius:10,
+        overflow: 'hidden'
+    },
 });
 
 export default RecipeScreen;

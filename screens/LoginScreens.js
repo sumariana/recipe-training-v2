@@ -1,4 +1,5 @@
-import React,{useCallback, useReducer,useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React,{useCallback, useReducer,useState,useEffect} from 'react';
 import { StyleSheet, View, Text,Image,ScrollView } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
@@ -35,6 +36,7 @@ const formReducer = (state,action)=>{
 
 const LoginScreen = props =>{
     const dispatch = useDispatch()
+    const [token,setToken] = useState()
     const [isLoading,setIsLoading]=useState(false)
     const [formState, dispatchFormState]=useReducer(formReducer,{
         inputValues:{
@@ -47,6 +49,17 @@ const LoginScreen = props =>{
         },
         formIsValid:false
     });
+
+    // useEffect(async()=>{
+    //     try{
+    //         setToken(await AsyncStorage.getItem(authAction.KEY_ACCESS_TOKEN))
+    //         if(token){
+    //             props.navigation.navigate('Recipe')
+    //         }
+    //     }catch(err){
+    //         console.log(err)
+    //     }
+    // },[token])
 
     const inputChangeHandler = useCallback((inputIdentifier, inputValue,inputValidity)=>{
         dispatchFormState({type: LOGIN,value: inputValue,isValid: inputValidity,input:inputIdentifier});
@@ -93,7 +106,7 @@ const LoginScreen = props =>{
                 titleStyle={{fontSize:22}}
                 disabled = {!formState.formIsValid}
                 loading={isLoading}
-                loadingStyle={{width:22,height:22}}
+                loadingStyle={{width:24,height:24}}
                 onPress={doLogin}
                 />
                 <Text style={{fontSize:16,marginTop:10,marginBottom:20}}>Don't have an account? <Text style={{color: '#F3717F',fontWeight:'bold'}} 

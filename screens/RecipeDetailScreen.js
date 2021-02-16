@@ -12,7 +12,7 @@ const RecipeDetailScreen = props =>{
     const recipe = useSelector(state=>state.recipeReducer.Recipe)
     const recipeId = props.navigation.getParam('recipe_id')
     const dispatch = useDispatch()
-    const [isFavorite,setIsFavorite] = useState(false)
+    const isFavorite = useSelector(state=>state.recipeReducer.isFavorite)
     
     const { width: SCREEN_WIDTH } = Dimensions.get("screen")
     const [scrollY,setScrollY] = useState(new Animated.Value(0))
@@ -38,8 +38,10 @@ const RecipeDetailScreen = props =>{
       });
 
       const loadDetail = useCallback(async()=>{
+          //showshimmer
           try{
               await dispatch(recipeAction.getRecipeDetail(recipeId))
+              //hideshimmer and show maincontent
           }catch(err){
             errorHandler.showErrorAlert(err.message)
           }
@@ -48,6 +50,21 @@ const RecipeDetailScreen = props =>{
       useEffect(()=>{
           loadDetail()
       },[dispatch,loadDetail,recipeId])
+
+      const handleFavorite = async()=>{
+          try{
+              //showloading
+              if(isFavorite){
+                  await dispatch(recipeAction.removeFavorite(recipeId));
+              }else{
+                  await dispatch(recipeAction.setFavorite(recipeId));
+              }
+              //hideloading
+          }catch(err){
+            //hideloading
+            errorHandler.showErrorAlert(err.message)
+          }
+      }
 
     return (
         <View style={{flex:1}}>
@@ -63,7 +80,9 @@ const RecipeDetailScreen = props =>{
                     <View style={{flex:1,marginEnd:10}}>
                         <Animated.Text style={{opacity:showItem,marginLeft:10,color:'white',fontWeight:'bold'}} numberOfLines={1}>{recipe.name}</Animated.Text>
                     </View>
-                    <Image source={isFavorite ? require('../assets/images/fav.png') : require('../assets/images/unfav.png')}/>
+                    <TouchableOpacity onPress={handleFavorite}>
+                        <Image source={isFavorite ? require('../assets/images/fav.png') : require('../assets/images/unfav.png')}/>
+                    </TouchableOpacity>
                 </Animated.View>
             </Animated.View>
             <ScrollView 

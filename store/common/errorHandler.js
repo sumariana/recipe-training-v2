@@ -31,7 +31,7 @@ export const getErrorMessage = (err) => {
 
 export const showErrorAlert = (message) => {
     setTimeout(() => {
-            Alert.alert( "Terjadi Kesalahan", message, [
+            Alert.alert( "Something Is Wrong", message, [
                 { 
                     text: "OK",
                 }

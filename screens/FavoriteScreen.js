@@ -1,10 +1,45 @@
-import React from 'react'
+import React,{useCallback,useEffect} from 'react'
 import { StyleSheet, View, Text,FlatList,Image } from 'react-native'
 import {useSelector, useDispatch} from 'react-redux';
 import RecipeItem from '../component/recipe-item';
 
+import * as recipeAction from '../store/recipe/recipe-action';
+import * as errorHandler from '../store/common/errorHandler';
+
 const FavoriteRecipe = props =>{
-    const recipeList = useSelector(state=>state.recipeReducer.allRecipe)
+    const recipeList = useSelector(state=>state.recipeReducer.allFavoriteRecipe)
+    const dispatch = useDispatch()
+    const loadProducts = useCallback(async()=>{
+        try{
+            await dispatch(recipeAction.getFavoriteList());
+        }catch(err){
+            errorHandler.showErrorAlert(err.message)
+        }
+    },[dispatch,loadProducts])
+
+    useEffect(()=>{
+        const willFocusSub = props.navigation.addListener(
+            'willFocus',
+            loadProducts
+          );
+      
+          return () => {
+            willFocusSub.remove();
+          };
+    },[loadProducts])
+
+    useEffect(()=>{
+        loadProducts()
+    },[dispatch,loadProducts])
+
+    if(recipeList.length===0){
+        return(
+            <View style={{flex:1,justifyContent: 'center', alignItems: 'center',backgroundColor:'white'}}>
+                <Text>No Recipe Favorite, add some!</Text>
+            </View>
+        );
+    }
+
     return (
         <View style={{flex:1}}>
             <FlatList

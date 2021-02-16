@@ -7,16 +7,40 @@ export const GET_DETAIL_RECIPE = 'DETAIL_RECIPE';
 import getClient from '../common/getClient';
 import { getErrorMessage } from "../common/errorHandler";
 
-export const setFavorite = (data) =>{
-    return {type: SET_FAVORITE,recipe:data}
+export const setFavorite = (id) =>{
+    return async (dispatch) =>{
+        try{
+            const response = await getClient.post(`/favorite/${id}`);
+            const data = response.data.data
+            dispatch({type: SET_FAVORITE})
+        }catch(error){
+            getErrorMessage(error)
+        }
+    }
 }
 
-export const removeFavorite = (data) =>{
-    return {type: REMOVE_FAV,recipe:data}
+export const removeFavorite = (id) =>{
+    return async (dispatch) =>{
+        try{
+            const response = await getClient.delete(`/favorite/${id}`);
+            const data = response.data.data
+            dispatch({type: REMOVE_FAV})
+        }catch(error){
+            getErrorMessage(error)
+        }
+    }
 }
 
 export const getFavoriteList = () =>{
-    return {type: GET_FAV}
+    return async (dispatch) =>{
+        try{
+            const response = await getClient.get('/favorite');
+            const data = response.data.data
+            dispatch({type: GET_FAV,list: data})
+        }catch(error){
+            getErrorMessage(error)
+        }
+    }
 }
 
 export const getRecipeList = () =>{
@@ -35,9 +59,10 @@ export const getRecipeDetail = (id)=>{
     return async (dispatch) =>{
         try{
             const response = await getClient.get(`/recipe/${id}`);
+            const favResponse = await getClient.get('/favorite');
+            const favList = favResponse.data.data
             const data = response.data.data
-            console.log(data)
-            dispatch({type: GET_DETAIL_RECIPE,data: data})
+            dispatch({type: GET_DETAIL_RECIPE,data: data,favList:favList})
         }catch(error){
             getErrorMessage(error)
         }
