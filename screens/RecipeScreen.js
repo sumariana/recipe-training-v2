@@ -9,6 +9,8 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import * as recipeAction from '../store/recipe/recipe-action';
 import * as errorHandler from '../store/common/errorHandler';
 import RecipeResponse from '../models/recipe_model';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { KEY_ACCESS_TOKEN } from '../store/auth/auth-action';
 
 const RecipeScreen = props =>{
     const recipeList = useSelector(state=>state.recipeReducer.allRecipe)
@@ -57,9 +59,7 @@ const RecipeScreen = props =>{
             </TouchableOpacity>
             <TouchableOpacity
             containerStyle={{width: '100%'}}
-            onPress={()=>{
-                props.navigation.goBack()
-            }} >
+            onPress={doLogout} >
             <Button
                 title='Log out'
                 containerStyle={{marginVertical:10,width:'100%'}}
@@ -69,6 +69,15 @@ const RecipeScreen = props =>{
             </TouchableOpacity>
         </View>
     );
+
+    const doLogout = async()=>{
+        try{
+            await AsyncStorage.removeItem(KEY_ACCESS_TOKEN)
+            props.navigation.popToTop();   
+        }catch(err){
+            errorHandler.showErrorAlert(err.message)
+        }
+    }
 
     const loadProducts = useCallback(async()=>{
         try{
@@ -153,7 +162,7 @@ const RecipeScreen = props =>{
 
 RecipeScreen.navigationOptions = navData => {
     return {
-      headerTitle: 'Recipe'
+      title: 'Recipe'
     };
   };
 

@@ -35,7 +35,7 @@ export default(state = initialState,action)=>{
             }
             return{
                 ...state,
-                Recipe: new RecipeResponse(action.data.id,action.data.name,action.data.description,action.data.imageUrl),
+                Recipe: action.data,
                 isFavorite: isFav
             };
         case GET_FAV :

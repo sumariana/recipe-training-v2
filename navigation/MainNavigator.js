@@ -31,7 +31,7 @@ const defaultNavOptions = {
       Recipe:{
         screen: RecipeScreen,
         navigationOptions:{
-          headerLeft: null,
+          headerLeft: ()=>null,
           headerTitleAlign:'center'
         }
       },

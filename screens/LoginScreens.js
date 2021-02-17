@@ -50,16 +50,21 @@ const LoginScreen = props =>{
         formIsValid:false
     });
 
-    // useEffect(async()=>{
-    //     try{
-    //         setToken(await AsyncStorage.getItem(authAction.KEY_ACCESS_TOKEN))
-    //         if(token){
-    //             props.navigation.navigate('Recipe')
-    //         }
-    //     }catch(err){
-    //         console.log(err)
-    //     }
-    // },[token])
+    const getToken = useCallback(async()=>{
+        try{
+            const tkn = await AsyncStorage.getItem(authAction.KEY_ACCESS_TOKEN);
+            setToken(tkn)
+            if(token){
+                props.navigation.navigate('Recipe') 
+            }
+        }catch(err){
+            console.log(err)
+        }
+    },[token])
+
+    useEffect(()=>{
+        getToken()
+    },[getToken,token])
 
     const inputChangeHandler = useCallback((inputIdentifier, inputValue,inputValidity)=>{
         dispatchFormState({type: LOGIN,value: inputValue,isValid: inputValidity,input:inputIdentifier});
@@ -68,7 +73,7 @@ const LoginScreen = props =>{
     const doLogin = async() =>{
         setIsLoading(true)
         try{
-            await dispatch(AuthAction.doLogin(formState.inputValues.email,formState.inputValues.password))
+            await dispatch(AuthAction.doLogin(formState.inputValues.email,formState.inputValues.password));
             setIsLoading(false)
             props.navigation.navigate('Recipe')
         }catch(err){
@@ -108,7 +113,7 @@ const LoginScreen = props =>{
                 loading={isLoading}
                 loadingStyle={{width:24,height:24}}
                 onPress={doLogin}
-                />
+            />
                 <Text style={{fontSize:16,marginTop:10,marginBottom:20}}>Don't have an account? <Text style={{color: '#F3717F',fontWeight:'bold'}} 
                       onPress={()=>
                         props.navigation.navigate('Register')

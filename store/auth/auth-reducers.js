@@ -12,7 +12,7 @@ export default(state = initialState,action)=>{
         case FETCH_PROFILE :
             return{
                 ...state,
-                profile: new ProfileResponse(action.profile.id,action.profile.name,action.profile.phone,action.profile.email,action.profile.image)
+                profile: action.profile
             }
     }
     return state;

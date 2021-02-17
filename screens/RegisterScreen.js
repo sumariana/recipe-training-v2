@@ -89,9 +89,10 @@ const RegisterScreen = props =>{
                     id ='phone'
                     label = 'Phone'
                     required = {true}
+                    isNumOnly={true}
                     minLength = {13}
                     maxlength = {13}
-                    keyboardType = 'number-pad'
+                    keyboardType = 'numeric'
                     onInputChange={inputChangeHandler}
                 />
                 <TextInputLayout

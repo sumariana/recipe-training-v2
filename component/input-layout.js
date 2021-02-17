@@ -22,7 +22,6 @@ const inputReducer = (state,action) =>{
 };
 
 const TextInputLayout = props =>{
-
     const [inputState,dispatchInput] = useReducer(inputReducer,{
         value: props.initialValue ? props.initialValue : '',
         isValid: props.initialValidated ? props.initialValidated : false,
@@ -34,23 +33,29 @@ const TextInputLayout = props =>{
         const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         let isValidated = true;
         let errorMessage = ''
-        if (props.required && text.trim().length === 0) {
+        let t = text
+
+        if(props.isNumOnly){
+            t = text.replace(/[- #*;,.<>\{\}\[\]\\\/]/gi, '');
+        }
+
+        if (props.required && t.trim().length === 0) {
             isValidated = false;
             errorMessage = 'field can\'t be empty'
         }else{
-            if (props.minLength != null && text.length < props.minLength) {
+            if (props.minLength != null && t.length < props.minLength) {
                 isValidated = false;
                 errorMessage = `field must be at least ${props.minLength} character`
             }
-            if (props.maxLength != null && text.length < props.maxLength) {
+            if (props.maxLength != null && t.length < props.maxLength) {
                 isValidated = false;
                 errorMessage = `field max of ${props.maxLength} character`
             }
-            if (props.email && !emailRegex.test(text.toLowerCase())) {
+            if (props.email && !emailRegex.test(t.toLowerCase())) {
                 isValidated = false;
                 errorMessage = 'Email format is wrong'
             }
-            if(props.isRepassword && text.toLowerCase() !== props.passwordValue.toLowerCase()){
+            if(props.isRepassword && t.toLowerCase() !== props.passwordValue.toLowerCase()){
                 isValidated = false
                 errorMessage = 'Password is not matched'
             }
@@ -81,7 +86,7 @@ const TextInputLayout = props =>{
 
     return(
         <View style={styles.container}>
-            <Text style={styles.label}>{props.label}</Text>
+            <Text style={{...styles.label,color:props.isEditing!=null ? props.isEditing? 'black' : 'gray' : 'black'}}>{props.label}</Text>
             <View style={styles.inputContainer}>
                 <TextInput
                     {...props}
@@ -90,6 +95,7 @@ const TextInputLayout = props =>{
                     onChangeText={textChangeHandler}
                     onTouchStart={FocusHandler}
                     placeholder={props.label}
+                    editable={props.isEditing!==null ? props.isEditing : true}
                     secureTextEntry = {secure}
                     
                 />
@@ -116,7 +122,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize:18,
-        color: 'black',
         marginStart:20,
         paddingVertical:5
     },
