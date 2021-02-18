@@ -5,12 +5,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { HeaderBackButton } from 'react-navigation-stack';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import * as ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
 
 import TextInputLayout from '../component/input-layout';
 import * as AuthAction from '../store/auth/auth-action';
 import * as errorHandler from '../store/common/errorHandler';
 import OptionsMenu from "react-native-option-menu";
 import CustomDialog from '../component/custom-dialog';
+
 
 const UPDATE = 'UPDATE';
 
@@ -153,9 +156,7 @@ const ProfileScreen = props =>{
             <View style={{alignItems:'center',width:'100%',marginTop:10}}>
             <TouchableOpacity
             containerStyle={{width:'100%'}}
-            onPress={()=>{
-                
-            }}
+            onPress={takeImageHandler}
             >
                 <Button
                     title='Take Picture'
@@ -187,9 +188,7 @@ const ProfileScreen = props =>{
                 buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                 titleStyle={{fontSize:16, color: 'black'}}
                 icon = {<Image style={{width:24,height:24,marginRight:5}} resizeMode="contain" source={require('../assets/images/photo.png')}/>}
-                onPress={()=>{
-                    
-                }}
+                onPress={takeImageHandler}
                 />
             <Button
                 title='Choose from Gallery'
@@ -205,13 +204,53 @@ const ProfileScreen = props =>{
             }
         </View>
     );
-    const [openSelector, setOpenSelector] = useState(false)
+    const verifyPermissions = async () => {
+        const result = await Permissions.askAsync(Permissions.CAMERA_ROLL,Permissions.CAMERA);
+        if (result.status !== 'granted') {
+          Alert.alert(
+            'Insufficient permissions!',
+            'You need to grant camera permissions to use this app.',
+            [{ text: 'Okay' }]
+          );
+          return false;
+        }
+        return true;
+      };
     const openImageSelector = () =>{
         if(isEditing){
             sheetRef.current.snapTo(0)
             console.log('open')
         }else{
             console.log('do nothing')
+        }
+    }
+
+    const takeImageHandler = async() =>{
+        const hasPermission = await verifyPermissions();
+        if (!hasPermission) {
+        return;
+        }
+        const image = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5
+        });
+        uploadImage(image.uri)
+    }
+
+    const uploadImage = async(image)=>{
+        setIsLoading(true);
+        try{
+            await dispatch(AuthAction.updateImage(image));
+            setIsLoading(false);
+            Alert.alert( "Update Success", "Updating Profile is Success", [
+                { 
+                    text: "OK"
+                }
+            ]);
+        }catch(error){
+            setIsLoading(false)
+            errorHandler.showErrorAlert(error.message)
         }
     }
 
