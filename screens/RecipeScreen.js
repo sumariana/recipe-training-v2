@@ -13,95 +13,106 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { KEY_ACCESS_TOKEN } from '../store/auth/auth-action';
 import CustomDialog from '../component/custom-dialog';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { getNextPage } from '../store/common/Helper';
+
+const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
+    const paddingToBottom = 0;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+};
 
 const RecipeScreen = props =>{
-    const recipeList = useSelector(state=>state.recipeReducer.allRecipe)
+    const [recipeList,setRecipeList] = useState([])
     const [isShowModal,setIsShowModal] = useState(false)
     const [isLoggingOut,setIsLoggingOut] = useState(false)
     const [selectedItem,setSelectedItem] = useState(new RecipeResponse())
+    const [swipeRefresh, setSwipeRefresh] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isShimmering, setIsShimmering] = useState(false);
+    const [page, setPage] = useState(1);
     const sheetRef = React.useRef(null);
     const dispatch = useDispatch()
     const bottomSheet = () => (
-        <View style={styles.bottomSlider}>
-            <Image containerStyle={{ width:40,height:10,marginTop:-20 }} source={require('../assets/images/slider.png')}/>
-            <Text style={{fontSize:18,marginTop:10, fontWeight:'bold'}}>MENU</Text>
-            <View style={{
-                borderStyle: 'dotted',
-                borderColor: 'gray',
-                borderWidth: 1,
-                height:1,
-                width:'100%',
-                borderRadius: 1,
-                marginTop:20
-            }}>
-            </View>
-            { Platform.OS === 'android' ? 
-            <View style={{alignItems:'center',width:'100%'}}>
-            <TouchableOpacity
-            containerStyle={{width:'100%'}}
-            onPress={()=>{
-                props.navigation.navigate('ProfileScreen')
-            }}
-            >
+        <View style={{paddingTop:10}}>
+            <View style={styles.bottomSlider}>
+                <Image containerStyle={{ width:50,height:10,marginTop:-20 }} source={require('../assets/images/slider.png')}/>
+                <Text style={{fontSize:18,marginTop:10, fontWeight:'bold'}}>MENU</Text>
+                <View style={{
+                    borderStyle: 'dotted',
+                    borderColor: 'gray',
+                    borderWidth: 1,
+                    height:1,
+                    width:'100%',
+                    borderRadius: 1,
+                    marginTop:20
+                }}/>
+                { Platform.OS === 'android' ? 
+                <View style={{alignItems:'center',width:'100%'}}>
+                <TouchableOpacity
+                containerStyle={{width:'100%'}}
+                onPress={()=>{
+                    props.navigation.navigate('ProfileScreen')
+                }}
+                >
+                    <Button
+                        title='Profile'
+                        containerStyle={{marginTop:20,width:'100%'}}
+                        buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                        titleStyle={{fontSize:16, color: 'black'}}
+                        />
+                </TouchableOpacity>
+                <TouchableOpacity
+                containerStyle={{width:'100%'}}
+                onPress={()=>{
+                    props.navigation.navigate('FavoriteScreen')
+                }} 
+                >
                 <Button
+                    title='Favorite'
+                    containerStyle={{marginTop:10,width:'100%'}}
+                    buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                    titleStyle={{fontSize:16, color: 'black'}}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity
+                containerStyle={{width:'100%'}}
+                onPress={OpenLogoutModal}>
+                <Button
+                    title='Log out'
+                    containerStyle={{marginVertical:10,width:'100%'}}
+                    buttonStyle={{borderRadius:20,backgroundColor:'red',marginHorizontal:20,borderWidth:1,borderColor:'transparent'}}
+                    titleStyle={{fontSize:16, color: 'white'}}
+                    />
+                </TouchableOpacity>
+                </View> : 
+                <View style={{alignItems:'center',width:'100%'}} >
+                    <Button
                     title='Profile'
                     containerStyle={{marginTop:20,width:'100%'}}
                     buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                     titleStyle={{fontSize:16, color: 'black'}}
+                    onPress={()=>{
+                        props.navigation.navigate('ProfileScreen')
+                    }}
                     />
-            </TouchableOpacity>
-            <TouchableOpacity
-            containerStyle={{width:'100%'}}
-            onPress={()=>{
-                props.navigation.navigate('FavoriteScreen')
-            }} 
-            >
-            <Button
-                title='Favorite'
-                containerStyle={{marginTop:10,width:'100%'}}
-                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
-                titleStyle={{fontSize:16, color: 'black'}}
-                />
-            </TouchableOpacity>
-            <TouchableOpacity
-            containerStyle={{width:'100%'}}
-            onPress={OpenLogoutModal}>
-            <Button
-                title='Log out'
-                containerStyle={{marginVertical:10,width:'100%'}}
-                buttonStyle={{borderRadius:20,backgroundColor:'red',marginHorizontal:20,borderWidth:1,borderColor:'transparent'}}
-                titleStyle={{fontSize:16, color: 'white'}}
-                />
-            </TouchableOpacity>
-            </View> : 
-            <View style={{alignItems:'center',width:'100%'}} >
                 <Button
-                title='Profile'
-                containerStyle={{marginTop:20,width:'100%'}}
-                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
-                titleStyle={{fontSize:16, color: 'black'}}
-                onPress={()=>{
-                    props.navigation.navigate('ProfileScreen')
-                }}
-                />
-            <Button
-                title='Favorite'
-                containerStyle={{marginTop:10,width:'100%'}}
-                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
-                titleStyle={{fontSize:16, color: 'black'}}
-                onPress={()=>{
-                    props.navigation.navigate('FavoriteScreen')
-                }} 
-                />
-            <Button
-                title='Log out'
-                containerStyle={{marginVertical:10,width:'100%'}}
-                buttonStyle={{borderRadius:20,backgroundColor:'red',marginHorizontal:20,borderWidth:1,borderColor:'transparent'}}
-                titleStyle={{fontSize:16, color: 'white'}}
-                onPress={OpenLogoutModal}
-                />
+                    title='Favorite'
+                    containerStyle={{marginTop:10,width:'100%'}}
+                    buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                    titleStyle={{fontSize:16, color: 'black'}}
+                    onPress={()=>{
+                        props.navigation.navigate('FavoriteScreen')
+                    }} 
+                    />
+                <Button
+                    title='Log out'
+                    containerStyle={{marginVertical:10,width:'100%'}}
+                    buttonStyle={{borderRadius:20,backgroundColor:'red',marginHorizontal:20,borderWidth:1,borderColor:'transparent'}}
+                    titleStyle={{fontSize:16, color: 'white'}}
+                    onPress={OpenLogoutModal}
+                    />
+                </View>
+                }
             </View>
-            }
         </View>
     );
 
@@ -111,11 +122,54 @@ const RecipeScreen = props =>{
         }catch(err){
             errorHandler.showErrorAlert(err.message)
         }
-    },[dispatch,loadProfile])
+    },[])
+
+    const loadProducts = useCallback(async()=>{
+        setIsLoading(true)
+        try{
+
+            const response = await recipeAction.getRecipeList(1);
+            const next = getNextPage(response.links.next)
+            setPage(next)
+            setRecipeList(response.data);
+        }catch(err){
+            errorHandler.showErrorAlert(err.message)
+        }
+        setIsLoading(false)
+        setSwipeRefresh(false)
+    },[]);
+
+    const loadMore = async()=>{
+        setIsLoading(true)
+        try{
+            console.log(page)
+            const response = await recipeAction.getRecipeList(page);
+            const next = getNextPage(response.links.next)
+            setPage(next)
+            setRecipeList(recipeList.concat(response.data));
+        }catch(err){
+            errorHandler.showErrorAlert(err.message)
+        }
+        setIsLoading(false)
+    }
 
     useEffect(()=>{
+        loadProducts()
         loadProfile()
-    },[dispatch,loadProfile])
+    },[])
+
+    useEffect(()=>{
+        const willFocusSub = props.navigation.addListener(
+            'willFocus',
+            ()=>{
+                loadProducts()
+                loadProfile()
+            }
+          );
+          return () => {
+            willFocusSub.remove();
+          };
+    },[])
 
     const OpenLogoutModal = useCallback(()=>{
         setIsLoggingOut(true)
@@ -124,38 +178,19 @@ const RecipeScreen = props =>{
     const doLogout = async()=>{
         try{
             await AsyncStorage.removeItem(KEY_ACCESS_TOKEN)
-            props.navigation.popToTop();   
+            props.navigation.navigate('intro') 
         }catch(err){
             errorHandler.showErrorAlert(err.message)
         }
     }
+    
 
-    const loadProducts = useCallback(async()=>{
-        try{
-            await dispatch(recipeAction.getRecipeList());
-        }catch(err){
-            errorHandler.showErrorAlert(err.message)
-        }
-    },[dispatch,loadProducts])
-
-    useEffect(()=>{
-        const willFocusSub = props.navigation.addListener(
-            'willFocus',
-            loadProducts
-          );
-      
-          return () => {
-            willFocusSub.remove();
-          };
-    },[loadProducts])
-
-    useEffect(()=>{
-        loadProducts()
-    },[dispatch,loadProducts])
     return (
-        <View style={{flex:1}}>
+        <View style={{flex:1,backgroundColor:'white'}}>
             <FlatList
-            contentContainerStyle={{paddingBottom:50}}
+                onRefresh={loadProducts}
+                refreshing = {swipeRefresh}
+                contentContainerStyle={{paddingBottom:50}}
                 data={recipeList}
                 keyExtractor={item=> item.id.toString()}
                 renderItem={(itemData)=>(
@@ -168,6 +203,11 @@ const RecipeScreen = props =>{
                     }}
                     />
                 )}
+                onScroll={({nativeEvent}) => {
+                    if (isCloseToBottom(nativeEvent) && page!==null) {
+                        loadMore();
+                    }
+                }}
             />
             <Modal
              animationType='fade'
@@ -224,7 +264,7 @@ const RecipeScreen = props =>{
 
 RecipeScreen.navigationOptions = navData => {
     return {
-      title: 'Recipe'
+      title: 'Recipes'
     };
   };
 
@@ -252,13 +292,13 @@ const styles = StyleSheet.create({
         backgroundColor:'white',
         alignItems:'center',
         justifyContent:'center',
-        borderTopRightRadius:10,
-        borderTopLeftRadius:10,
+        borderTopRightRadius:20,
+        borderTopLeftRadius:20,
         shadowColor: 'black',
         shadowOpacity: 0.56,
         shadowOffset: {width: 0, height: 2},
         shadowRadius: 8,
-        elevation: 10,
+        elevation: 15
     },
     image:{
         width: '100%',

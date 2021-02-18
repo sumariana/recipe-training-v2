@@ -1,21 +1,51 @@
-import React,{useCallback,useEffect} from 'react'
+import React,{useCallback,useEffect,useState} from 'react'
 import { StyleSheet, View, Text,FlatList,Image } from 'react-native'
 import {useSelector, useDispatch} from 'react-redux';
 import RecipeItem from '../component/recipe-item';
 
 import * as recipeAction from '../store/recipe/recipe-action';
 import * as errorHandler from '../store/common/errorHandler';
+import { getNextPage } from '../store/common/Helper';
+
+const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
+    const paddingToBottom = 0;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+};
 
 const FavoriteRecipe = props =>{
-    const recipeList = useSelector(state=>state.recipeReducer.allFavoriteRecipe)
-    const dispatch = useDispatch()
+    const [recipeList,setRecipeList] = useState([])
+    const [page, setPage] = useState(1);
+    const [swipeRefresh, setSwipeRefresh] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const dispatch = useDispatch();
+
+
     const loadProducts = useCallback(async()=>{
+        setIsLoading(true)
         try{
-            await dispatch(recipeAction.getFavoriteList());
+            const response = await recipeAction.getFavoriteList(1);
+            const next = getNextPage(response.links.next)
+            setPage(next)
+            setRecipeList(response.data);
         }catch(err){
             errorHandler.showErrorAlert(err.message)
         }
+        setIsLoading(false)
     },[dispatch,loadProducts])
+
+    const loadMore = async()=>{
+        setIsLoading(true)
+        try{
+            console.log(page)
+            const response = await recipeAction.getFavoriteList(page);
+            const next = getNextPage(response.links.next)
+            setPage(next)
+            setRecipeList(recipeList.concat(response.data));
+        }catch(err){
+            errorHandler.showErrorAlert(err.message)
+        }
+        setIsLoading(false)
+    }
 
     useEffect(()=>{
         const willFocusSub = props.navigation.addListener(
@@ -30,7 +60,7 @@ const FavoriteRecipe = props =>{
 
     useEffect(()=>{
         loadProducts()
-    },[dispatch,loadProducts])
+    },[])
 
     if(recipeList.length===0){
         return(
@@ -41,11 +71,13 @@ const FavoriteRecipe = props =>{
     }
 
     return (
-        <View style={{flex:1}}>
+        <View style={{flex:1,backgroundColor:'white'}}>
             <FlatList
-            contentContainerStyle={{paddingBottom:50}}
+                onRefresh={loadProducts}
+                refreshing = {swipeRefresh}
+                contentContainerStyle={{paddingBottom:50}}
                 data={recipeList}
-                keyExtractor={item=> item.id}
+                keyExtractor={item=> item.id.toString()}
                 renderItem={(itemData)=>(
                     <RecipeItem
                     image = {itemData.item.imageUrl}
@@ -55,6 +87,11 @@ const FavoriteRecipe = props =>{
                     }}
                     />
                 )}
+                onScroll={({nativeEvent}) => {
+                    if (isCloseToBottom(nativeEvent) && page!==null) {
+                        loadMore();
+                    }
+                }}
             />
         </View>
     );
@@ -66,22 +103,6 @@ FavoriteRecipe.navigationOptions = navData => {
     };
   };
 
-const styles = StyleSheet.create({
-    bottomSlider:{
-        height:'100%',
-        width:'100%',
-        flexDirection:'column',
-        backgroundColor:'white',
-        alignItems:'center',
-        justifyContent:'center',
-        borderTopRightRadius:10,
-        borderTopLeftRadius:10,
-        shadowColor: 'black',
-        shadowOpacity: 0.56,
-        shadowOffset: {width: 0, height: 2},
-        shadowRadius: 8,
-        elevation: 10,
-    }
-});
+const styles = StyleSheet.create({});
 
 export default FavoriteRecipe;

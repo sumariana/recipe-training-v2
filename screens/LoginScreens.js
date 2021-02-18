@@ -5,6 +5,7 @@ import { Button } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
 
 import TextInputLayout from '../component/input-layout';
+import LoadingDialog from '../component/loading-dialog';
 import * as AuthAction from '../store/auth/auth-action';
 import * as errorHandler from '../store/common/errorHandler';
 
@@ -51,20 +52,22 @@ const LoginScreen = props =>{
     });
 
     const getToken = useCallback(async()=>{
+        setIsLoading(true)
         try{
-            const tkn = await AsyncStorage.getItem(authAction.KEY_ACCESS_TOKEN);
+            const tkn = await AsyncStorage.getItem(AuthAction.KEY_ACCESS_TOKEN);
             setToken(tkn)
             if(token){
-                props.navigation.navigate('Recipe') 
+                props.navigation.navigate('mainFlow') 
             }
         }catch(err){
             console.log(err)
         }
-    },[token])
+        setIsLoading(false)
+    },[])
 
     useEffect(()=>{
         getToken()
-    },[getToken,token])
+    },[])
 
     const inputChangeHandler = useCallback((inputIdentifier, inputValue,inputValidity)=>{
         dispatchFormState({type: LOGIN,value: inputValue,isValid: inputValidity,input:inputIdentifier});
@@ -75,7 +78,7 @@ const LoginScreen = props =>{
         try{
             await dispatch(AuthAction.doLogin(formState.inputValues.email,formState.inputValues.password));
             setIsLoading(false)
-            props.navigation.navigate('Recipe')
+            props.navigation.navigate('mainFlow')
         }catch(err){
             setIsLoading(false)
             errorHandler.showErrorAlert(err.message)
@@ -83,6 +86,7 @@ const LoginScreen = props =>{
     }
 
     return (
+        <View style={{flex:1}}>
         <ScrollView contentContainerStyle = {styles.screen}>
             <View style={styles.imageContainer}>
                 <Image style={styles.Image} source={require('../assets/images/logo.png')}/>
@@ -110,8 +114,6 @@ const LoginScreen = props =>{
                 buttonStyle={{borderRadius:20,backgroundColor:'#F3717F',marginHorizontal:20}}
                 titleStyle={{fontSize:22}}
                 disabled = {!formState.formIsValid}
-                loading={isLoading}
-                loadingStyle={{width:24,height:24}}
                 onPress={doLogin}
             />
                 <Text style={{fontSize:16,marginTop:10,marginBottom:20}}>Don't have an account? <Text style={{color: '#F3717F',fontWeight:'bold'}} 
@@ -136,6 +138,10 @@ const LoginScreen = props =>{
                 />
             </View>
         </ScrollView>
+        <LoadingDialog
+        isShowModal = {isLoading}
+        />
+        </View>
     );
 };
 

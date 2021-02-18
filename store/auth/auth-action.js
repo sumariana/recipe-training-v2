@@ -1,4 +1,3 @@
-import LoginData from "../../models/login-data";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import getClient from '../common/getClient';
 import { getErrorMessage } from "../common/errorHandler";

@@ -9,6 +9,7 @@ import ReduxThunk from 'redux-thunk';
 import authReducer from './store/auth/auth-reducers';
 import recipeReducer from './store/recipe/recipe-reducers';
 import MainNavigator from './navigation/MainNavigator';
+import { setNavigator } from './navigation/navigationRef';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -20,7 +21,7 @@ const store = createStore(rootReducer,applyMiddleware(ReduxThunk))
 export default function App() {
   return (
     <Provider store = {store}>
-        <MainNavigator/>
+        <MainNavigator ref={(nav)=>{setNavigator(nav)}} />
     </Provider>
   );
 }

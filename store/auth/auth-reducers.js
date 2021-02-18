@@ -1,5 +1,3 @@
-import LoginData from "../../models/login-data";
-import LoginResponse from "../../models/login-response";
 import ProfileResponse from "../../models/profile-response";
 import { FETCH_PROFILE } from "./auth-action";
 

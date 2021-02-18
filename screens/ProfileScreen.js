@@ -83,7 +83,7 @@ const ProfileScreen = props =>{
         try{
             await AsyncStorage.removeItem(KEY_ACCESS_TOKEN)
             setIsLoggingOut(false)
-            props.navigation.popToTop();
+            props.navigation.navigate('intro')
         }catch(err){
             errorHandler.showErrorAlert(err.message)
         }

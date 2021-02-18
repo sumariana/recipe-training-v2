@@ -31,27 +31,31 @@ export const removeFavorite = (id) =>{
     }
 }
 
-export const getFavoriteList = () =>{
-    return async (dispatch) =>{
-        try{
-            const response = await getClient.get('/favorite');
-            const data = response.data.data
-            dispatch({type: GET_FAV,list: data})
-        }catch(error){
-            getErrorMessage(error)
-        }
+export const getFavoriteList = async(page) =>{
+    try{
+        const response = await getClient.get('/favorite',{
+            params:{
+                page: page ? page : 1
+            }
+        });
+        const data = response.data
+        return data
+    }catch(error){
+        getErrorMessage(error)
     }
 }
 
-export const getRecipeList = () =>{
-    return async (dispatch) =>{
-        try{
-            const response = await getClient.get('/recipe');
-            const data = response.data.data
-            dispatch({type: GET_RECIPE,list: data})
-        }catch(error){
-            getErrorMessage(error)
-        }
+export const getRecipeList = async(page) =>{
+    try{
+        const response = await getClient.get('/recipe',{
+            params:{
+                page: page ? page : 1
+            }
+        });
+        const data = response.data
+        return data
+    }catch(error){
+        getErrorMessage(error)
     }
 }
 

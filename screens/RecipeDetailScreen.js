@@ -7,10 +7,12 @@ const HEADER_COLLAPSED_HEIGHT = 80
 
 import * as recipeAction from '../store/recipe/recipe-action';
 import * as errorHandler from '../store/common/errorHandler';
+import LoadingDialog from '../component/loading-dialog';
 
 const RecipeDetailScreen = props =>{
     const recipe = useSelector(state=>state.recipeReducer.Recipe)
     const recipeId = props.navigation.getParam('recipe_id')
+    const [isLoading,setLoading] = useState(false)
     const dispatch = useDispatch()
     const isFavorite = useSelector(state=>state.recipeReducer.isFavorite)
     
@@ -39,17 +41,19 @@ const RecipeDetailScreen = props =>{
 
       const loadDetail = useCallback(async()=>{
           //showshimmer
+          setLoading(true)
           try{
               await dispatch(recipeAction.getRecipeDetail(recipeId))
               //hideshimmer and show maincontent
           }catch(err){
             errorHandler.showErrorAlert(err.message)
           }
-      },[dispatch,loadDetail,recipeId]);
+          setLoading(false)
+      },[]);
 
       useEffect(()=>{
           loadDetail()
-      },[dispatch,loadDetail,recipeId])
+      },[])
 
       const handleFavorite = async()=>{
           try{
@@ -98,6 +102,9 @@ const RecipeDetailScreen = props =>{
                 <Animated.Text style={{fontSize:16,fontWeight:'bold',opacity:hideItem}}>{recipe.name}</Animated.Text>
                 <Text style={{fontSize:16}}>{recipe.description}</Text>
             </ScrollView>
+            <LoadingDialog
+            isShowModal={isLoading}
+            />
         </View>
     );
 };
