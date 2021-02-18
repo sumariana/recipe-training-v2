@@ -22,6 +22,7 @@ const inputReducer = (state,action) =>{
 };
 
 const TextInputLayout = props =>{
+    
     const [inputState,dispatchInput] = useReducer(inputReducer,{
         value: props.initialValue ? props.initialValue : '',
         isValid: props.initialValidated ? props.initialValidated : false,
@@ -84,10 +85,22 @@ const TextInputLayout = props =>{
 
     const [secure, setSecure] = useState(props.isPassword!=null ? true : false)
 
+    const colorVert = () =>{
+        let def = 'black'
+
+        if(props.isEditing!==null){
+            if(!props.isEditing) def = 'gray'
+        }
+        if(!inputState.isValid && inputState.touched && inputState.errorMessage!==''){
+            def = 'red'
+        }
+        return def;
+    }
+
     return(
         <View style={styles.container}>
-            <Text style={{...styles.label,color:props.isEditing!=null ? props.isEditing? 'black' : 'gray' : 'black'}}>{props.label}</Text>
-            <View style={styles.inputContainer}>
+            <Text style={{...styles.label,color: colorVert()}}>{props.label}</Text>
+            <View style={{...styles.inputContainer,borderColor: colorVert()}}>
                 <TextInput
                     {...props}
                     style={styles.input}
@@ -130,7 +143,6 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         borderWidth: 1,
-        borderColor: 'black',
         borderRadius: 20,
     },
     input: {

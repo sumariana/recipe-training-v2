@@ -13,7 +13,8 @@ import * as AuthAction from '../store/auth/auth-action';
 import * as errorHandler from '../store/common/errorHandler';
 import OptionsMenu from "react-native-option-menu";
 import CustomDialog from '../component/custom-dialog';
-
+import LoadingDialog from '../component/loading-dialog';
+import ProfileResponse from '../models/profile-response';
 
 const UPDATE = 'UPDATE';
 
@@ -42,7 +43,6 @@ const formReducer = (state,action)=>{
 
 const ProfileScreen = props =>{
     const dispatch = useDispatch()
-    const preLoadedData = useSelector(state=>state.auth.profile)
     const sheetRef = React.useRef(null);
     const [isLoading,setIsLoading]= useState(false)
     const [showDialog,setShowDialog] = useState(false)
@@ -50,34 +50,19 @@ const ProfileScreen = props =>{
     const [isLoggingOut,setIsLoggingOut] = useState(false)
     const [formState, dispatchFormState]=useReducer(formReducer,{
         inputValues:{
-            name:preLoadedData ? preLoadedData.name : '',
-            phone:preLoadedData ? preLoadedData.phone: '',
-            email: preLoadedData ? preLoadedData.email:'',
-            image:preLoadedData ? preLoadedData.image:'',
+            name:props.navigation.getParam('name'),
+            phone:props.navigation.getParam('phone'),
+            email: props.navigation.getParam('email'),
+            image:props.navigation.getParam('image'),
         },
         inputValidities:{
-            name:preLoadedData ? true: false,
-            phone:preLoadedData ? true: false,
-            email:preLoadedData ? true: false,
-            image:preLoadedData ? true: true
+            name:true,
+            phone:true,
+            email:true,
+            image:true
         },
-        formIsValid: preLoadedData ? true: false
+        formIsValid: true
     });
-    
-    const loadProfile = useCallback(async()=>{
-        setIsLoading(true)
-        try{
-            await dispatch(AuthAction.fetchProfile());
-            setIsLoading(false)
-        }catch(err){
-            setIsLoading(false)
-            errorHandler.showErrorAlert(err.message)
-        }
-    },[])
-
-    useEffect(()=>{
-        loadProfile()
-    },[dispatch,loadProfile])
 
     const doLogout = async()=>{
         try{
@@ -215,8 +200,6 @@ const ProfileScreen = props =>{
     const openImageSelector = () =>{
         if(isEditing){
             sheetRef.current.snapTo(0)
-        }else{
-            console.log('do nothing')
         }
     }
 
@@ -246,7 +229,6 @@ const ProfileScreen = props =>{
         uploadImage(image.uri)
     }
 
-
     const uploadImage = async(image)=>{
         setIsLoading(true);
         try{
@@ -275,7 +257,7 @@ const ProfileScreen = props =>{
                 id = 'name'
                 label = 'name'
                 initialValue = {formState.inputValues.name}
-                initialValidated = {!!preLoadedData}
+                initialValidated = {true}
                 required = {true}
                 isEditing = {isEditing}
                 onInputChange={inputChangeHandler}
@@ -285,9 +267,11 @@ const ProfileScreen = props =>{
                 label = 'phone'
                 isNumOnly={true}
                 initialValue = {formState.inputValues.phone}
-                initialValidated = {!!preLoadedData}
+                initialValidated = {true}
                 keyboardType = 'numeric'
                 required = {true}
+                minLength = {13}
+                maxlength = {13}
                 isEditing = {isEditing}
                 onInputChange={inputChangeHandler}
                 />
@@ -297,8 +281,8 @@ const ProfileScreen = props =>{
                 email = {true}
                 required = {true}
                 isEditing = {isEditing}
-                initialValue = { preLoadedData? formState.inputValues.email : ''}
-                initialValidated = {!!preLoadedData}
+                initialValue = {formState.inputValues.email}
+                initialValidated = {true}
                 onInputChange={inputChangeHandler}
                 />
             </View>
@@ -308,8 +292,6 @@ const ProfileScreen = props =>{
                 buttonStyle={{borderRadius:20,backgroundColor:'#F3717F',marginHorizontal:20}}
                 titleStyle={{fontSize:22}}
                 disabled = {!formState.formIsValid}
-                loading={isLoading}
-                loadingStyle={{width:24,height:24}}
                 onPress={doUpdate}
             />}
             {showDialog && 
@@ -318,7 +300,6 @@ const ProfileScreen = props =>{
             yesTitle = 'Yes'
             noTitle = 'No'
             onOk ={()=>{
-                loadProfile()
                 setIsEditing(!isEditing)
                 setShowDialog(false)
             }}
@@ -343,6 +324,9 @@ const ProfileScreen = props =>{
             snapPoints={[200, 0]}
             initialSnap ={1}
             renderContent={bottomSheet}
+        />
+        <LoadingDialog
+        isShowModal = {isLoading}
         />
         </View>
     );

@@ -14,6 +14,7 @@ import { KEY_ACCESS_TOKEN } from '../store/auth/auth-action';
 import CustomDialog from '../component/custom-dialog';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { getNextPage } from '../store/common/Helper';
+import ProfileResponse from '../models/profile-response';
 
 const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
     const paddingToBottom = 0;
@@ -22,6 +23,7 @@ const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
 
 const RecipeScreen = props =>{
     const [recipeList,setRecipeList] = useState([])
+    const [profile,setProfile] = useState(new ProfileResponse)
     const [isShowModal,setIsShowModal] = useState(false)
     const [isLoggingOut,setIsLoggingOut] = useState(false)
     const [selectedItem,setSelectedItem] = useState(new RecipeResponse())
@@ -50,7 +52,12 @@ const RecipeScreen = props =>{
                 <TouchableOpacity
                 containerStyle={{width:'100%'}}
                 onPress={()=>{
-                    props.navigation.navigate('ProfileScreen')
+                    props.navigation.navigate('ProfileScreen',{
+                        name: profile.name,
+                        email: profile.email,
+                        phone: profile.phone,
+                        image: profile.image
+                    })
                 }}
                 >
                     <Button
@@ -91,7 +98,12 @@ const RecipeScreen = props =>{
                     buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                     titleStyle={{fontSize:16, color: 'black'}}
                     onPress={()=>{
-                        props.navigation.navigate('ProfileScreen')
+                        props.navigation.navigate('ProfileScreen',{
+                            name: profile.name,
+                            email: profile.email,
+                            phone: profile.phone,
+                            image: profile.image
+                        })
                     }}
                     />
                 <Button
@@ -116,13 +128,16 @@ const RecipeScreen = props =>{
         </View>
     );
 
-    const loadProfile = useCallback(async()=>{
+    const loadProfile = async()=>{
+        setIsLoading(true)
         try{
-            await dispatch(AuthAction.fetchProfile());
+            const response = await AuthAction.fetchProfile();
+            setProfile(response)
         }catch(err){
             errorHandler.showErrorAlert(err.message)
         }
-    },[])
+        setIsLoading(false)
+    }
 
     const loadProducts = useCallback(async()=>{
         setIsLoading(true)
@@ -154,22 +169,22 @@ const RecipeScreen = props =>{
     }
 
     useEffect(()=>{
-        loadProducts()
         loadProfile()
+        loadProducts()
     },[])
 
     useEffect(()=>{
         const willFocusSub = props.navigation.addListener(
             'willFocus',
             ()=>{
-                loadProducts()
                 loadProfile()
+                loadProducts()
             }
           );
           return () => {
             willFocusSub.remove();
           };
-    },[])
+    },[loadProfile,loadProducts])
 
     const OpenLogoutModal = useCallback(()=>{
         setIsLoggingOut(true)

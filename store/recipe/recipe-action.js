@@ -7,27 +7,23 @@ export const GET_DETAIL_RECIPE = 'DETAIL_RECIPE';
 import getClient from '../common/getClient';
 import { getErrorMessage } from "../common/errorHandler";
 
-export const setFavorite = (id) =>{
-    return async (dispatch) =>{
-        try{
-            const response = await getClient.post(`/favorite/${id}`);
-            const data = response.data.data
-            dispatch({type: SET_FAVORITE})
-        }catch(error){
-            getErrorMessage(error)
-        }
+export const setFavorite = async(id) =>{
+    try{
+        const response = await getClient.post(`/favorite/${id}`);
+        const data = response.data.data
+        return data
+    }catch(error){
+        getErrorMessage(error)
     }
 }
 
-export const removeFavorite = (id) =>{
-    return async (dispatch) =>{
-        try{
-            const response = await getClient.delete(`/favorite/${id}`);
-            const data = response.data.data
-            dispatch({type: REMOVE_FAV})
-        }catch(error){
-            getErrorMessage(error)
-        }
+export const removeFavorite = async(id) =>{
+    try{
+        const response = await getClient.delete(`/favorite/${id}`);
+        const data = response.data.data
+        return data
+    }catch(error){
+        getErrorMessage(error)
     }
 }
 
@@ -59,16 +55,27 @@ export const getRecipeList = async(page) =>{
     }
 }
 
-export const getRecipeDetail = (id)=>{
-    return async (dispatch) =>{
-        try{
-            const response = await getClient.get(`/recipe/${id}`);
-            const favResponse = await getClient.get('/favorite');
-            const favList = favResponse.data.data
-            const data = response.data.data
-            dispatch({type: GET_DETAIL_RECIPE,data: data,favList:favList})
-        }catch(error){
-            getErrorMessage(error)
+export const getRecipeDetail = async(id)=>{
+    try{
+        const response = await getClient.get(`/recipe/${id}`);
+        const favResponse = await getClient.get('/favorite');
+        const data = response.data.data
+        const favList = favResponse.data.data
+
+        let isFav = false;
+        for(const key in favList){
+            if(favList[key].id===data.id){
+                isFav=true;
+            }
         }
+
+        const objects = {
+            recipe : data,
+            fav: isFav
+        }
+        return objects;
+        //dispatch({type: GET_DETAIL_RECIPE,data: data,favList:favList})
+    }catch(error){
+        getErrorMessage(error)
     }
 }

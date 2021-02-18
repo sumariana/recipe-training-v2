@@ -87,7 +87,7 @@ const LoginScreen = props =>{
 
     return (
         <View style={{flex:1}}>
-        <ScrollView contentContainerStyle = {styles.screen}>
+        <ScrollView contentContainerStyle = {styles.screen} keyboardShouldPersistTaps="always" >
             <View style={styles.imageContainer}>
                 <Image style={styles.Image} source={require('../assets/images/logo.png')}/>
             </View>

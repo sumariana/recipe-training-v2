@@ -1,6 +1,5 @@
 import React,{useCallback, useEffect,useState} from 'react'
 import { StyleSheet, View, Text,Dimensions,Animated,ScrollView,Image,TouchableOpacity } from 'react-native'
-import { useSelector,useDispatch } from 'react-redux';
 
 const HEADER_EXPANDED_HEIGHT = 200
 const HEADER_COLLAPSED_HEIGHT = 80
@@ -8,13 +7,13 @@ const HEADER_COLLAPSED_HEIGHT = 80
 import * as recipeAction from '../store/recipe/recipe-action';
 import * as errorHandler from '../store/common/errorHandler';
 import LoadingDialog from '../component/loading-dialog';
+import RecipeResponse from '../models/recipe_model';
 
 const RecipeDetailScreen = props =>{
-    const recipe = useSelector(state=>state.recipeReducer.Recipe)
     const recipeId = props.navigation.getParam('recipe_id')
+    const [recipe,setRecipe] = useState(new RecipeResponse())
+    const [isFavorite,setIsFavorite] = useState(false)
     const [isLoading,setLoading] = useState(false)
-    const dispatch = useDispatch()
-    const isFavorite = useSelector(state=>state.recipeReducer.isFavorite)
     
     const { width: SCREEN_WIDTH } = Dimensions.get("screen")
     const [scrollY,setScrollY] = useState(new Animated.Value(0))
@@ -23,28 +22,29 @@ const RecipeDetailScreen = props =>{
         outputRange: [HEADER_EXPANDED_HEIGHT, HEADER_COLLAPSED_HEIGHT],
         extrapolate:'clamp'
     })
-      const showItem = scrollY.interpolate({
-        inputRange: [0, HEADER_EXPANDED_HEIGHT-HEADER_COLLAPSED_HEIGHT],
-        outputRange: [0, 1],
-        extrapolate: 'clamp'
-      });
-      const hideItem = scrollY.interpolate({
-        inputRange: [0, HEADER_EXPANDED_HEIGHT-HEADER_COLLAPSED_HEIGHT],
-        outputRange: [1, 0],
-        extrapolate: 'clamp'
-      });
-      const showTranslucent = scrollY.interpolate({
-        inputRange: [0, HEADER_EXPANDED_HEIGHT-HEADER_COLLAPSED_HEIGHT],
-        outputRange: [0, 0.5],
-        extrapolate: 'clamp'
-      });
+    const showItem = scrollY.interpolate({
+    inputRange: [0, HEADER_EXPANDED_HEIGHT-HEADER_COLLAPSED_HEIGHT],
+    outputRange: [0, 1],
+    extrapolate: 'clamp'
+    });
+    const hideItem = scrollY.interpolate({
+    inputRange: [0, HEADER_EXPANDED_HEIGHT-HEADER_COLLAPSED_HEIGHT],
+    outputRange: [1, 0],
+    extrapolate: 'clamp'
+    });
+    const showTranslucent = scrollY.interpolate({
+    inputRange: [0, HEADER_EXPANDED_HEIGHT-HEADER_COLLAPSED_HEIGHT],
+    outputRange: [0, 0.5],
+    extrapolate: 'clamp'
+    });
 
       const loadDetail = useCallback(async()=>{
-          //showshimmer
           setLoading(true)
           try{
-              await dispatch(recipeAction.getRecipeDetail(recipeId))
-              //hideshimmer and show maincontent
+              const response = await recipeAction.getRecipeDetail(recipeId)
+              setRecipe(response.recipe)
+              setIsFavorite(response.fav)
+            console.log(response)
           }catch(err){
             errorHandler.showErrorAlert(err.message)
           }
@@ -56,18 +56,19 @@ const RecipeDetailScreen = props =>{
       },[])
 
       const handleFavorite = async()=>{
+          setLoading(true)
           try{
-              //showloading
               if(isFavorite){
-                  await dispatch(recipeAction.removeFavorite(recipeId));
+                  const response = await recipeAction.removeFavorite(recipeId);
+                  
               }else{
-                  await dispatch(recipeAction.setFavorite(recipeId));
+                  const response = await recipeAction.setFavorite(recipeId);
               }
-              //hideloading
+              setIsFavorite(!isFavorite)
           }catch(err){
-            //hideloading
             errorHandler.showErrorAlert(err.message)
           }
+          setLoading(false)
       }
 
     return (

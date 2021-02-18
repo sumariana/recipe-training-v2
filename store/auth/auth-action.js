@@ -43,15 +43,14 @@ export const doRegister = (value) =>{
     }
 }
 
-export const fetchProfile = () =>{
-    return async (dispatch) =>{
-        try{
-            const response = await getClient.get('/profile');
-            const data = response.data.data
-            dispatch({type: FETCH_PROFILE,profile: data})
-        }catch(error){
-            getErrorMessage(error)
-        }
+export const fetchProfile = async() =>{
+    try{
+        const response = await getClient.get('/profile');
+        const data = response.data.data
+        return data;
+        //dispatch({type: FETCH_PROFILE,profile: data})
+    }catch(error){
+        getErrorMessage(error)
     }
 }
 
