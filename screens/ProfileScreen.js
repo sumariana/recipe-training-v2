@@ -168,9 +168,7 @@ const ProfileScreen = props =>{
             </TouchableOpacity>
             <TouchableOpacity
             containerStyle={{width:'100%'}}
-            onPress={()=>{
-                
-            }} 
+            onPress={chooseImageHandler} 
             >
             <Button
                 title='Choose from Gallery'
@@ -196,9 +194,7 @@ const ProfileScreen = props =>{
                 buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                 titleStyle={{fontSize:16, color: 'black'}}
                 icon = {<Image style={{width:24,height:24,marginRight:5}} resizeMode="contain" source={require('../assets/images/gallery.png')}/>}
-                onPress={()=>{
-                    
-                }} 
+                onPress={chooseImageHandler} 
                 />
             </View>
             }
@@ -219,7 +215,6 @@ const ProfileScreen = props =>{
     const openImageSelector = () =>{
         if(isEditing){
             sheetRef.current.snapTo(0)
-            console.log('open')
         }else{
             console.log('do nothing')
         }
@@ -237,6 +232,20 @@ const ProfileScreen = props =>{
         });
         uploadImage(image.uri)
     }
+
+    const chooseImageHandler = async() =>{
+        const hasPermission = await verifyPermissions();
+        if (!hasPermission) {
+        return;
+        }
+        const image = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5
+        });
+        uploadImage(image.uri)
+    }
+
 
     const uploadImage = async(image)=>{
         setIsLoading(true);

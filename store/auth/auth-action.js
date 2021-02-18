@@ -68,10 +68,6 @@ export const updateImage = (image) => {
         try{
             const response = await getClient.post('/profile',{
                 image : form
-            },{
-                headers:{
-                    'Content-Type': 'multipart/form-data'
-                }
             }
             );
             const data = response.data.data
