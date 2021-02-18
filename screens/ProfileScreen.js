@@ -9,7 +9,6 @@ import * as AuthAction from '../store/auth/auth-action';
 import * as errorHandler from '../store/common/errorHandler';
 import OptionsMenu from "react-native-option-menu";
 import CustomDialog from '../component/custom-dialog';
-import RecipeResponse from '../models/recipe_model';
 
 const UPDATE = 'UPDATE';
 
@@ -38,7 +37,7 @@ const formReducer = (state,action)=>{
 
 const ProfileScreen = props =>{
     const dispatch = useDispatch()
-    const [preLoadedData, setPreloadedData] = useState()
+    const preLoadedData = useSelector(state=>state.auth.profile)
     const [isLoading,setIsLoading]= useState(false)
     const [showDialog,setShowDialog] = useState(false)
     const [isEditing,setIsEditing] = useState(false)
@@ -58,30 +57,21 @@ const ProfileScreen = props =>{
         },
         formIsValid: preLoadedData ? true: false
     });
-
+    
     const loadProfile = useCallback(async()=>{
-        //setIsLoading(true)
+        setIsLoading(true)
         try{
-            const response = await AuthAction.fetchProfile();
-            console.log(response)
-            setPreloadedData(response)
-            //setIsLoading(false)
+            await dispatch(AuthAction.fetchProfile());
+            setIsLoading(false)
         }catch(err){
-            //setIsLoading(false)
+            setIsLoading(false)
             errorHandler.showErrorAlert(err.message)
         }
     },[])
 
-    const retrieveData = ()=>{
-        formState.inputValues.name = preLoadedData.name
-        formState.inputValues.phone = preLoadedData.phone
-        formState.inputValues.email = preLoadedData.email
-    }
-
     useEffect(()=>{
         loadProfile()
     },[dispatch,loadProfile])
-    
 
     const doLogout = async()=>{
         try{

@@ -1,20 +1,23 @@
 import React,{useCallback, useEffect,useState} from 'react'
-import { StyleSheet, View, Text,FlatList,Modal,TouchableHighlight } from 'react-native'
+import { StyleSheet, View, Text,FlatList,Modal,Platform } from 'react-native'
 import {useSelector, useDispatch} from 'react-redux';
 import RecipeItem from '../component/recipe-item';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { Button,Image } from 'react-native-elements';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 
 import * as recipeAction from '../store/recipe/recipe-action';
+import * as AuthAction from '../store/auth/auth-action';
 import * as errorHandler from '../store/common/errorHandler';
 import RecipeResponse from '../models/recipe_model';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { KEY_ACCESS_TOKEN } from '../store/auth/auth-action';
+import CustomDialog from '../component/custom-dialog';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const RecipeScreen = props =>{
     const recipeList = useSelector(state=>state.recipeReducer.allRecipe)
     const [isShowModal,setIsShowModal] = useState(false)
+    const [isLoggingOut,setIsLoggingOut] = useState(false)
     const [selectedItem,setSelectedItem] = useState(new RecipeResponse())
     const sheetRef = React.useRef(null);
     const dispatch = useDispatch()
@@ -32,20 +35,23 @@ const RecipeScreen = props =>{
                 marginTop:20
             }}>
             </View>
+            { Platform.OS === 'android' ? 
+            <View style={{alignItems:'center',width:'100%'}}>
             <TouchableOpacity
-            containerStyle={{width: '100%'}}
+            containerStyle={{width:'100%'}}
             onPress={()=>{
                 props.navigation.navigate('ProfileScreen')
-            }} >
-            <Button
-                title='Profile'
-                containerStyle={{marginTop:20,width:'100%'}}
-                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
-                titleStyle={{fontSize:16, color: 'black'}}
-                />
+            }}
+            >
+                <Button
+                    title='Profile'
+                    containerStyle={{marginTop:20,width:'100%'}}
+                    buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                    titleStyle={{fontSize:16, color: 'black'}}
+                    />
             </TouchableOpacity>
             <TouchableOpacity
-            containerStyle={{width: '100%'}}
+            containerStyle={{width:'100%'}}
             onPress={()=>{
                 props.navigation.navigate('FavoriteScreen')
             }} 
@@ -58,8 +64,8 @@ const RecipeScreen = props =>{
                 />
             </TouchableOpacity>
             <TouchableOpacity
-            containerStyle={{width: '100%'}}
-            onPress={doLogout} >
+            containerStyle={{width:'100%'}}
+            onPress={OpenLogoutModal}>
             <Button
                 title='Log out'
                 containerStyle={{marginVertical:10,width:'100%'}}
@@ -67,8 +73,53 @@ const RecipeScreen = props =>{
                 titleStyle={{fontSize:16, color: 'white'}}
                 />
             </TouchableOpacity>
+            </View> : 
+            <View style={{alignItems:'center',width:'100%'}} >
+                <Button
+                title='Profile'
+                containerStyle={{marginTop:20,width:'100%'}}
+                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                titleStyle={{fontSize:16, color: 'black'}}
+                onPress={()=>{
+                    props.navigation.navigate('ProfileScreen')
+                }}
+                />
+            <Button
+                title='Favorite'
+                containerStyle={{marginTop:10,width:'100%'}}
+                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                titleStyle={{fontSize:16, color: 'black'}}
+                onPress={()=>{
+                    props.navigation.navigate('FavoriteScreen')
+                }} 
+                />
+            <Button
+                title='Log out'
+                containerStyle={{marginVertical:10,width:'100%'}}
+                buttonStyle={{borderRadius:20,backgroundColor:'red',marginHorizontal:20,borderWidth:1,borderColor:'transparent'}}
+                titleStyle={{fontSize:16, color: 'white'}}
+                onPress={OpenLogoutModal}
+                />
+            </View>
+            }
         </View>
     );
+
+    const loadProfile = useCallback(async()=>{
+        try{
+            await dispatch(AuthAction.fetchProfile());
+        }catch(err){
+            errorHandler.showErrorAlert(err.message)
+        }
+    },[dispatch,loadProfile])
+
+    useEffect(()=>{
+        loadProfile()
+    },[dispatch,loadProfile])
+
+    const OpenLogoutModal = useCallback(()=>{
+        setIsLoggingOut(true)
+    },[isLoggingOut,setIsLoggingOut]);
 
     const doLogout = async()=>{
         try{
@@ -150,6 +201,17 @@ const RecipeScreen = props =>{
                      </View>
                  </View>
             </Modal>
+            {isLoggingOut &&
+                <CustomDialog
+                message = 'Are you sure want to exit?'
+                yesTitle = 'Yes'
+                noTitle = 'No'
+                onOk ={doLogout}
+                onCancel = {()=>{
+                    setIsLoggingOut(false)
+                }}
+                />
+            }
             <BottomSheet
             ref = {sheetRef}
             snapPoints={[30, 300, 30]}
