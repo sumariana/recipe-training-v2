@@ -148,20 +148,9 @@ const ProfileScreen = props =>{
 
     const bottomSheet = () => (
         <View style={styles.bottomSlider}>
-            <Image containerStyle={{ width:40,height:10,marginTop:-20 }} source={require('../assets/images/slider.png')}/>
-            <Text style={{fontSize:18,marginTop:10, fontWeight:'bold'}}>MENU</Text>
-            <View style={{
-                borderStyle: 'dotted',
-                borderColor: 'gray',
-                borderWidth: 1,
-                height:1,
-                width:'100%',
-                borderRadius: 1,
-                marginTop:20
-            }}>
-            </View>
+            <Image containerStyle={{ width:40,height:10,marginTop:0 }} source={require('../assets/images/slider.png')}/>
             { Platform.OS === 'android' ? 
-            <View style={{alignItems:'center',width:'100%'}}>
+            <View style={{alignItems:'center',width:'100%',marginTop:10}}>
             <TouchableOpacity
             containerStyle={{width:'100%'}}
             onPress={()=>{
@@ -173,6 +162,7 @@ const ProfileScreen = props =>{
                     containerStyle={{marginTop:20,width:'100%'}}
                     buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                     titleStyle={{fontSize:16, color: 'black'}}
+                    icon = {<Image style={{width:24,height:24,marginRight:5}} resizeMode="contain" source={require('../assets/images/photo.png')}/>}
                     />
             </TouchableOpacity>
             <TouchableOpacity
@@ -186,6 +176,7 @@ const ProfileScreen = props =>{
                 containerStyle={{marginTop:10,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                 titleStyle={{fontSize:16, color: 'black'}}
+                icon = {<Image style={{width:24,height:24,marginRight:5}} resizeMode="contain" source={require('../assets/images/gallery.png')}/>}
                 />
             </TouchableOpacity>
             </View> : 
@@ -195,6 +186,7 @@ const ProfileScreen = props =>{
                 containerStyle={{marginTop:20,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                 titleStyle={{fontSize:16, color: 'black'}}
+                icon = {<Image style={{width:24,height:24,marginRight:5}} resizeMode="contain" source={require('../assets/images/photo.png')}/>}
                 onPress={()=>{
                     
                 }}
@@ -204,6 +196,7 @@ const ProfileScreen = props =>{
                 containerStyle={{marginTop:10,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
                 titleStyle={{fontSize:16, color: 'black'}}
+                icon = {<Image style={{width:24,height:24,marginRight:5}} resizeMode="contain" source={require('../assets/images/gallery.png')}/>}
                 onPress={()=>{
                     
                 }} 
