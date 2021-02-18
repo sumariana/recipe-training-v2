@@ -56,6 +56,23 @@ export const fetchProfile = () =>{
     }
 }
 
+export const updateImage = (image) => {
+    let form = new FormData()
+    form.append("image",image)
+    return async(dispatch)=>{
+        try{
+            const response = await getClient.post('/profile',{
+                form
+            }
+            );
+            const data = response.data.data
+            dispatch({type: FETCH_PROFILE,profile: data})
+        }catch(err){
+            getErrorMessage(err)
+        }
+    }
+}
+
 // export const fetchProfile = async() =>{
 //     try{
 //         const response = await getClient.get('/profile');

@@ -3,6 +3,8 @@ import { StyleSheet, View, Text,ScrollView,Alert } from 'react-native';
 import {Image,Button} from 'react-native-elements'
 import { useSelector, useDispatch } from 'react-redux';
 import { HeaderBackButton } from 'react-navigation-stack';
+import BottomSheet from 'reanimated-bottom-sheet';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import TextInputLayout from '../component/input-layout';
 import * as AuthAction from '../store/auth/auth-action';
@@ -38,6 +40,7 @@ const formReducer = (state,action)=>{
 const ProfileScreen = props =>{
     const dispatch = useDispatch()
     const preLoadedData = useSelector(state=>state.auth.profile)
+    const sheetRef = React.useRef(null);
     const [isLoading,setIsLoading]= useState(false)
     const [showDialog,setShowDialog] = useState(false)
     const [isEditing,setIsEditing] = useState(false)
@@ -143,23 +146,88 @@ const ProfileScreen = props =>{
         }
     }
 
+    const bottomSheet = () => (
+        <View style={styles.bottomSlider}>
+            <Image containerStyle={{ width:40,height:10,marginTop:-20 }} source={require('../assets/images/slider.png')}/>
+            <Text style={{fontSize:18,marginTop:10, fontWeight:'bold'}}>MENU</Text>
+            <View style={{
+                borderStyle: 'dotted',
+                borderColor: 'gray',
+                borderWidth: 1,
+                height:1,
+                width:'100%',
+                borderRadius: 1,
+                marginTop:20
+            }}>
+            </View>
+            { Platform.OS === 'android' ? 
+            <View style={{alignItems:'center',width:'100%'}}>
+            <TouchableOpacity
+            containerStyle={{width:'100%'}}
+            onPress={()=>{
+                
+            }}
+            >
+                <Button
+                    title='Take Picture'
+                    containerStyle={{marginTop:20,width:'100%'}}
+                    buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                    titleStyle={{fontSize:16, color: 'black'}}
+                    />
+            </TouchableOpacity>
+            <TouchableOpacity
+            containerStyle={{width:'100%'}}
+            onPress={()=>{
+                
+            }} 
+            >
+            <Button
+                title='Choose from Gallery'
+                containerStyle={{marginTop:10,width:'100%'}}
+                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                titleStyle={{fontSize:16, color: 'black'}}
+                />
+            </TouchableOpacity>
+            </View> : 
+            <View style={{alignItems:'center',width:'100%'}} >
+                <Button
+                title='Take Picture'
+                containerStyle={{marginTop:20,width:'100%'}}
+                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                titleStyle={{fontSize:16, color: 'black'}}
+                onPress={()=>{
+                    
+                }}
+                />
+            <Button
+                title='Choose from Gallery'
+                containerStyle={{marginTop:10,width:'100%'}}
+                buttonStyle={{borderRadius:20,backgroundColor:'transparent',marginHorizontal:20,borderWidth:1,borderColor:'black'}}
+                titleStyle={{fontSize:16, color: 'black'}}
+                onPress={()=>{
+                    
+                }} 
+                />
+            </View>
+            }
+        </View>
+    );
+    const [openSelector, setOpenSelector] = useState(false)
+    const openImageSelector = () =>{
+        if(isEditing){
+            sheetRef.current.snapTo(0)
+            console.log('open')
+        }else{
+            console.log('do nothing')
+        }
+    }
+
     return (
+        <View style={{flex:1}}>
         <ScrollView contentContainerStyle={styles.screen}>
             <View style={styles.imageContainer}>
-                {formState.inputValues.image==='' ? <Image style={styles.Image} source={require('../assets/images/user.png')} onPress={()=>{
-                    if(isEditing){
-                        console.log('openBottomSheet')
-                    }else{
-                        console.log('do nothing')
-                    }
-                }}/> :  
-                <Image style={styles.Image} source={{uri: formState.inputValues.image}} onPress={()=>{
-                    if(isEditing){
-                        console.log('openBottomSheet')
-                    }else{
-                        console.log('do nothing')
-                    }
-                }}/>}
+                {formState.inputValues.image==='' ? <Image style={styles.Image} source={require('../assets/images/user.png')} onPress={openImageSelector}/> :  
+                <Image style={styles.Image} source={{uri: formState.inputValues.image}} onPress={openImageSelector}/>}
             </View>
             <View style={styles.inputContainer}>
                 <TextInputLayout
@@ -229,6 +297,13 @@ const ProfileScreen = props =>{
                 />
             }
         </ScrollView>
+        <BottomSheet
+            ref = {sheetRef}
+            snapPoints={[200, 0]}
+            initialSnap ={1}
+            renderContent={bottomSheet}
+        />
+        </View>
     );
 };
 
@@ -262,6 +337,21 @@ const styles = StyleSheet.create({
         flexGrow:1,
         backgroundColor:'white',
         paddingBottom:30
+    },
+    bottomSlider:{
+        height:'100%',
+        width:'100%',
+        flexDirection:'column',
+        backgroundColor:'white',
+        alignItems:'center',
+        justifyContent:'center',
+        borderTopRightRadius:10,
+        borderTopLeftRadius:10,
+        shadowColor: 'black',
+        shadowOpacity: 0.56,
+        shadowOffset: {width: 0, height: 2},
+        shadowRadius: 8,
+        elevation: 10,
     },
     inputContainer:{
         marginTop: '10%',
