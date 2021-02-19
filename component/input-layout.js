@@ -23,12 +23,18 @@ const inputReducer = (state,action) =>{
 
 const TextInputLayout = props =>{
     
-    const [inputState,dispatchInput] = useReducer(inputReducer,{
+    const [inputState,dispatch] = useReducer(inputReducer,{
         value: props.initialValue ? props.initialValue : '',
         isValid: props.initialValidated ? props.initialValidated : false,
         errorMessage: '',
         touched: false
     });
+    
+    const { onInputChange,id } = props
+
+    useEffect(()=>{
+        onInputChange(id,inputState.value, inputState.isValid)
+    },[inputState,onInputChange,id])
 
     const textChangeHandler = text =>{
         const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -48,7 +54,7 @@ const TextInputLayout = props =>{
                 isValidated = false;
                 errorMessage = `field must be at least ${props.minLength} character`
             }
-            if (props.maxLength != null && t.length < props.maxLength) {
+            if (props.maxLength != null && t.length > props.maxLength) {
                 isValidated = false;
                 errorMessage = `field max of ${props.maxLength} character`
             }
@@ -56,32 +62,18 @@ const TextInputLayout = props =>{
                 isValidated = false;
                 errorMessage = 'Email format is wrong'
             }
-            if(props.isRepassword && t.toLowerCase() !== props.passwordValue.toLowerCase()){
+            if(props.id==='password_confirmation' && props.passwordValue.toLowerCase() !== t.toLowerCase()){
                 isValidated = false
                 errorMessage = 'Password is not matched'
             }
         }
 
-        dispatchInput({type: INPUT_CHANGE,
+        dispatch({type: INPUT_CHANGE,
         value: text,
         isValid: isValidated,
         errorMessage: errorMessage
         })
     };
-
-    const { onInputChange,id } = props
-
-    useEffect(()=>{
-        if(inputState.touched){
-            onInputChange(id,inputState.value, inputState.isValid)
-        }
-    },[inputState,onInputChange,id])
-
-    const FocusHandler = () =>{
-        dispatchInput({
-            type: INPUT_BLUR
-        });
-    }
 
     const [secure, setSecure] = useState(props.isPassword!=null ? true : false)
 
@@ -91,7 +83,7 @@ const TextInputLayout = props =>{
         if(props.isEditing!==null){
             if(!props.isEditing) def = 'gray'
         }
-        if(!inputState.isValid && inputState.touched && inputState.errorMessage!==''){
+        if(!inputState.isValid && inputState.errorMessage!==''){
             def = 'red'
         }
         return def;
@@ -104,13 +96,11 @@ const TextInputLayout = props =>{
                 <TextInput
                     {...props}
                     style={styles.input}
-                    value={inputState.value}
+                    value={props.initialValue !==null ? props.initialValue : inputState.value}
                     onChangeText={textChangeHandler}
-                    onTouchStart={FocusHandler}
                     placeholder={props.label}
                     editable={props.isEditing!==null ? props.isEditing : true}
                     secureTextEntry = {secure}
-                    
                 />
                 {
                 props.isPassword &&
@@ -121,8 +111,8 @@ const TextInputLayout = props =>{
                 onPress={() => setSecure(!secure)} />
                 }
             </View>
-            {!inputState.isValid && inputState.touched && inputState.errorMessage!=='' && (
-            <Text style={{marginStart: 20,color:'red'}}>
+            {!inputState.isValid && inputState.errorMessage!=='' && (
+            <Text style={{marginStart: 20,color:'red',fontFamily:'roboto-regular',fontSize:10}}>
                 {inputState.errorMessage}
             </Text>)}
         </View>
@@ -134,9 +124,11 @@ const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     label: {
-        fontSize:18,
+        fontSize:14,
         marginStart:20,
-        paddingVertical:5
+        paddingVertical:5,
+        fontFamily:'roboto-regular'
+        
     },
     inputContainer:{
         width: '100%',
@@ -147,9 +139,10 @@ const styles = StyleSheet.create({
     },
     input: {
         flex:1,
-        fontSize:18,
+        fontSize:14,
         paddingHorizontal:20,
-        paddingVertical:5
+        paddingVertical:5,
+        fontFamily:'roboto-regular'
     }
 });
 export default TextInputLayout;

@@ -77,7 +77,7 @@ const RegisterScreen = props =>{
 
     return (
         <View style={{ flexDirection:'column' ,backgroundColor:'white',flex:1}}>
-            <ScrollView containerStyle={styles.screen}>
+            <ScrollView containerStyle={styles.screen} keyboardShouldPersistTaps="always" >
             <View style ={styles.inputContainer}>
                 <TextInputLayout
                     id='name'
@@ -91,8 +91,8 @@ const RegisterScreen = props =>{
                     required = {true}
                     isNumOnly={true}
                     minLength = {13}
-                    maxlength = {13}
-                    keyboardType = 'numeric'
+                    maxLength = {13}
+                    keyboardType = "phone-pad"
                     onInputChange={inputChangeHandler}
                 />
                 <TextInputLayout
@@ -100,6 +100,7 @@ const RegisterScreen = props =>{
                     label = 'Email'
                     email = {true}
                     required = {true}
+                    inputType="email"
                     onInputChange={inputChangeHandler}
                 />
                 <TextInputLayout
@@ -108,6 +109,7 @@ const RegisterScreen = props =>{
                     required = {true}
                     isPassword = {true}
                     minLength = {6}
+                    inputType="password"
                     onInputChange={inputChangeHandler}
                 />
                 <TextInputLayout
@@ -115,7 +117,7 @@ const RegisterScreen = props =>{
                     label = 'Re-Password'
                     required = {true}
                     isPassword = {true}
-                    isRepassword = {true}
+                    inputType="password"
                     passwordValue = {formState.inputValues.password}
                     minLength = {6}
                     onInputChange={inputChangeHandler}
@@ -131,7 +133,9 @@ const RegisterScreen = props =>{
                         uncheckedColor = 'black'
                         textStyle={{color: props.isDisabled ?'gray' : 'black',fontSize:12}}
                     />
-                    <Text style={{color: 'black',fontWeight: 'bold',marginStart:-10}}>i have read the <Text style={{color:'#F3717F',fontWeight:'bold'}} onPress={()=>{}}>Terms of Service</Text></Text>
+                    <Text style={{color: 'black',fontWeight: 'bold',marginStart:-10}}>i have read the <Text style={{color:'#F3717F',fontWeight:'bold'}} onPress={()=>{
+                        props.navigation.navigate('WebView');
+                    }}>Terms of Service</Text></Text>
                 </View>
         </View>
         </ScrollView>

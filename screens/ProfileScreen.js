@@ -15,6 +15,7 @@ import OptionsMenu from "react-native-option-menu";
 import CustomDialog from '../component/custom-dialog';
 import LoadingDialog from '../component/loading-dialog';
 import ProfileResponse from '../models/profile-response';
+import { TextInput } from 'react-native';
 
 const UPDATE = 'UPDATE';
 
@@ -48,21 +49,44 @@ const ProfileScreen = props =>{
     const [showDialog,setShowDialog] = useState(false)
     const [isEditing,setIsEditing] = useState(false)
     const [isLoggingOut,setIsLoggingOut] = useState(false)
+    const [profile,setProfile] = useState(new ProfileResponse())
+    const [loadImage,setLoadImage] = useState('')
     const [formState, dispatchFormState]=useReducer(formReducer,{
         inputValues:{
-            name:props.navigation.getParam('name'),
-            phone:props.navigation.getParam('phone'),
-            email: props.navigation.getParam('email'),
-            image:props.navigation.getParam('image'),
+            // name:props.navigation.getParam('name'),
+            // phone:props.navigation.getParam('phone'),
+            // email: props.navigation.getParam('email'),
+            // image:props.navigation.getParam('image'),
+            name:'',
+            phone:'',
+            email: ''
         },
         inputValidities:{
-            name:true,
-            phone:true,
-            email:true,
-            image:true
+            name:false,
+            phone:false,
+            email:false
         },
         formIsValid: true
     });
+
+    const loadProfile = useCallback(async()=>{
+        setIsLoading(true)
+        try{
+            const response = await AuthAction.fetchProfile();
+            dispatchFormState({type: UPDATE,value: response.name,isValid: true,input: 'name'});
+            dispatchFormState({type: UPDATE,value: response.phone,isValid: true,input:'phone'});
+            dispatchFormState({type: UPDATE,value: response.email,isValid: true,input:'email'});
+            setLoadImage(response.image)
+            setProfile(response)
+        }catch(err){
+            errorHandler.showErrorAlert(err.message)
+        }
+        setIsLoading(false)
+    },[dispatchFormState,setIsLoading])
+
+    useEffect(()=>{
+        loadProfile()
+    },[loadProfile]);
 
     const doLogout = async()=>{
         try{
@@ -112,19 +136,24 @@ const ProfileScreen = props =>{
     },[handleGoBack])
 
     const inputChangeHandler = useCallback((inputIdentifier, inputValue,inputValidity)=>{
-        dispatchFormState({type: UPDATE,value: inputValue,isValid: inputValidity,input:inputIdentifier});
+        dispatchFormState({type: UPDATE,value: inputValue, isValid: inputValidity, input: inputIdentifier});
     },[dispatchFormState]);
 
     const doUpdate = async()=>{
         setIsLoading(true);
         try{
-            await dispatch(AuthAction.updateProfile(formState.inputValues.email,formState.inputValues.name,formState.inputValues.phone));
+            const response = await AuthAction.updateProfile(formState.inputValues.email,formState.inputValues.name,formState.inputValues.phone);
             setIsLoading(false);
             Alert.alert( "Update Success", "Updating Profile is Success", [
                 { 
                     text: "OK",
                     onPress: ()=>{
                         setIsEditing(false)
+                        dispatchFormState({type: UPDATE,value: response.name,isValid: true,input: 'name'});
+                        dispatchFormState({type: UPDATE,value: response.phone,isValid: true,input:'phone'});
+                        dispatchFormState({type: UPDATE,value: response.email,isValid: true,input:'email'});
+                        setLoadImage(response.image)
+                        setProfile(response)
                     }
                 }
             ]);
@@ -232,11 +261,13 @@ const ProfileScreen = props =>{
     const uploadImage = async(image)=>{
         setIsLoading(true);
         try{
-            await dispatch(AuthAction.updateImage(image));
+            const response = await AuthAction.updateImage(image);
             setIsLoading(false);
             Alert.alert( "Update Success", "Updating Profile is Success", [
                 { 
-                    text: "OK"
+                    text: "OK",onPress: ()=>{
+                        console.log(response)
+                    }
                 }
             ]);
         }catch(error){
@@ -249,15 +280,15 @@ const ProfileScreen = props =>{
         <View style={{flex:1}}>
         <ScrollView contentContainerStyle={styles.screen}>
             <View style={styles.imageContainer}>
-                {formState.inputValues.image==='' ? <Image style={styles.Image} source={require('../assets/images/user.png')} onPress={openImageSelector}/> :  
-                <Image style={styles.Image} source={{uri: formState.inputValues.image}} onPress={openImageSelector}/>}
+                {loadImage==='' ? <Image style={styles.Image} source={require('../assets/images/user.png')} onPress={openImageSelector}/> :  
+                <Image style={styles.Image} source={{uri: loadImage}} onPress={openImageSelector}/>}
             </View>
             <View style={styles.inputContainer}>
                 <TextInputLayout
                 id = 'name'
                 label = 'name'
                 initialValue = {formState.inputValues.name}
-                initialValidated = {true}
+                initialValidated = {formState.inputValidities.name}
                 required = {true}
                 isEditing = {isEditing}
                 onInputChange={inputChangeHandler}
@@ -267,7 +298,7 @@ const ProfileScreen = props =>{
                 label = 'phone'
                 isNumOnly={true}
                 initialValue = {formState.inputValues.phone}
-                initialValidated = {true}
+                initialValidated = {formState.inputValidities.phone}
                 keyboardType = 'numeric'
                 required = {true}
                 minLength = {13}
@@ -282,7 +313,7 @@ const ProfileScreen = props =>{
                 required = {true}
                 isEditing = {isEditing}
                 initialValue = {formState.inputValues.email}
-                initialValidated = {true}
+                initialValidated = {formState.inputValidities.email}
                 onInputChange={inputChangeHandler}
                 />
             </View>
@@ -300,6 +331,9 @@ const ProfileScreen = props =>{
             yesTitle = 'Yes'
             noTitle = 'No'
             onOk ={()=>{
+                dispatchFormState({type: UPDATE,value: profile.name,isValid: true,input: 'name'});
+                dispatchFormState({type: UPDATE,value: profile.phone,isValid: true,input:'phone'});
+                dispatchFormState({type: UPDATE,value: profile.email,isValid: true,input:'email'});
                 setIsEditing(!isEditing)
                 setShowDialog(false)
             }}
@@ -376,7 +410,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.56,
         shadowOffset: {width: 0, height: 2},
         shadowRadius: 8,
-        elevation: 10,
+        elevation: 10
     },
     inputContainer:{
         marginTop: '10%',

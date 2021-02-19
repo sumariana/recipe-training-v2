@@ -9,13 +9,11 @@ export default(state = initialState,action)=>{
     switch(action.type){
         case SET_FAVORITE:
             return{
-                ...state,
-                isFavorite: true
+                ...state
             };
         case REMOVE_FAV:
             return{
-                ...state,
-                isFavorite: false
+                ...state
             };
         
     }

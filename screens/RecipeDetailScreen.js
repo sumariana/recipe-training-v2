@@ -73,17 +73,17 @@ const RecipeDetailScreen = props =>{
 
     return (
         <View style={{flex:1}}>
-            <Animated.View style={{height: headerHeight,width:SCREEN_WIDTH,position:'absolute',zIndex: 9999}}>
+            <Animated.View style={{...styles.headerAnim,width:SCREEN_WIDTH,height: headerHeight}}>
                 <Animated.Image style={{height: headerHeight,width:'100%'}} source={{ uri: recipe.imageUrl }} />
-                <Animated.View style={{flexDirection:'row',position: 'absolute',width:'100%',height:'100%',backgroundColor:'black',opacity:showTranslucent}}/>
-                <Animated.View style={{flexDirection:'row',position: 'absolute',paddingStart:16,paddingEnd:10, marginTop:38,width:'100%',alignItems:'center'}}>
+                <Animated.View style={{...styles.headerAnim2,opacity:showTranslucent}}/>
+                <Animated.View style={styles.headerContent}>
                     <TouchableOpacity onPress={()=>{
                         props.navigation.goBack()
                     }} >
                         <Image source={require('../assets/images/back_arrow.png')}/>
                     </TouchableOpacity>
                     <View style={{flex:1,marginEnd:10}}>
-                        <Animated.Text style={{opacity:showItem,marginLeft:10,color:'white',fontWeight:'bold'}} numberOfLines={1}>{recipe.name}</Animated.Text>
+                        <Animated.Text style={{...styles.titleToolbar,opacity:showItem}} numberOfLines={1}>{recipe.name}</Animated.Text>
                     </View>
                     <TouchableOpacity onPress={handleFavorite}>
                         <Image source={isFavorite ? require('../assets/images/fav.png') : require('../assets/images/unfav.png')}/>
@@ -91,17 +91,17 @@ const RecipeDetailScreen = props =>{
                 </Animated.View>
             </Animated.View>
             <ScrollView 
-            contentContainerStyle={{padding:16,paddingTop:HEADER_EXPANDED_HEIGHT+20}}
-            onScroll={Animated.event([{ nativeEvent: {
-                contentOffset: {
-                  y: scrollY
+                contentContainerStyle={{padding:16,paddingTop:HEADER_EXPANDED_HEIGHT+20}}
+                onScroll={Animated.event([{ nativeEvent: {
+                    contentOffset: {
+                    y: scrollY
+                    }
                 }
-              }
-           }])}
-           scrollEventThrottle={16}
+                }])}
+                scrollEventThrottle={16}
             >
-                <Animated.Text style={{fontSize:16,fontWeight:'bold',opacity:hideItem}}>{recipe.name}</Animated.Text>
-                <Text style={{fontSize:16}}>{recipe.description}</Text>
+                <Animated.Text style={{fontSize:20,fontFamily:'roboto-bold',opacity:hideItem}}>{recipe.name}</Animated.Text>
+                <Text style={{fontSize:14,fontFamily:'roboto-regular',textAlign:'justify',marginTop:20}}>{recipe.description}</Text>
             </ScrollView>
             <LoadingDialog
             isShowModal={isLoading}
@@ -111,6 +111,18 @@ const RecipeDetailScreen = props =>{
 };
 
 const styles = StyleSheet.create({
+    headerAnim:{
+        position:'absolute',zIndex: 9999
+    },
+    headerAnim2:{
+        flexDirection:'row',position: 'absolute',width:'100%',height:'100%',backgroundColor:'black'
+    },
+    headerContent:{
+        flexDirection:'row',position: 'absolute',paddingStart:16,paddingEnd:10, marginTop:34,width:'100%',alignItems:'center'
+    },
+    titleToolbar:{
+        marginLeft:10,color:'white',fontFamily:'roboto-bold',fontSize:20
+    },
     image:{
         height: 200
     }

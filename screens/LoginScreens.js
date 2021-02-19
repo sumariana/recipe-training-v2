@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import TextInputLayout from '../component/input-layout';
 import LoadingDialog from '../component/loading-dialog';
+import SignInDialog from '../component/custom-sign-dialog';
 import * as AuthAction from '../store/auth/auth-action';
 import * as errorHandler from '../store/common/errorHandler';
 
@@ -39,6 +40,7 @@ const LoginScreen = props =>{
     const dispatch = useDispatch()
     const [token,setToken] = useState()
     const [isLoading,setIsLoading]=useState(false)
+    const [openDialog,setOpenDialog]=useState(false)
     const [formState, dispatchFormState]=useReducer(formReducer,{
         inputValues:{
             email: '',
@@ -97,6 +99,7 @@ const LoginScreen = props =>{
                 label = 'Email'
                 email = {true}
                 required = {true}
+                inputType="email"
                 onInputChange={inputChangeHandler}
                 />
                 <TextInputLayout
@@ -104,6 +107,8 @@ const LoginScreen = props =>{
                 label = 'password'
                 isPassword = {true}
                 required = {true}
+                minLength ={6}
+                inputType="password"
                 onInputChange={inputChangeHandler}
                 />
             </View>
@@ -112,11 +117,11 @@ const LoginScreen = props =>{
                 title='LOGIN'
                 containerStyle={{marginTop:50,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'#F3717F',marginHorizontal:20}}
-                titleStyle={{fontSize:22}}
+                titleStyle={{fontSize:18,fontFamily:'roboto-medium'}}
                 disabled = {!formState.formIsValid}
                 onPress={doLogin}
             />
-                <Text style={{fontSize:16,marginTop:10,marginBottom:20}}>Don't have an account? <Text style={{color: '#F3717F',fontWeight:'bold'}} 
+                <Text style={{fontSize:14,marginTop:10,marginBottom:20,fontFamily:'roboto-regular'}}>Don't have an account? <Text style={{color: '#F3717F',fontFamily:'roboto-bold'}} 
                       onPress={()=>
                         props.navigation.navigate('Register')
                       }>Register Now!</Text> 
@@ -134,12 +139,21 @@ const LoginScreen = props =>{
                 title='Sign in with another method'
                 containerStyle={{marginVertical:30,width:'100%'}}
                 buttonStyle={{borderRadius:20,backgroundColor:'black',marginHorizontal:20}}
-                titleStyle={{fontSize:22}}
+                titleStyle={{fontSize:18,fontFamily:'roboto-medium'}}
+                onPress={()=>{
+                    setOpenDialog(true)
+                }}
                 />
             </View>
         </ScrollView>
         <LoadingDialog
         isShowModal = {isLoading}
+        />
+        <SignInDialog
+        isShowModal = {openDialog}
+        onOutsideTouch ={()=>{
+            setOpenDialog(false)
+        }}
         />
         </View>
     );

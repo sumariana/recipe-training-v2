@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import getClient from '../common/getClient';
 import { getErrorMessage } from "../common/errorHandler";
+import { Platform } from "react-native";
+import FormData from 'form-data';
 
 export const DO_LOGIN = 'DO_LOGIN';
 export const DO_REGISTER = 'DO_REGISTER';
@@ -54,50 +56,53 @@ export const fetchProfile = async() =>{
     }
 }
 
-export const updateImage = (image) => {
-    const photo = {
-        uri: image,
-        type: 'image/jpeg',
-        name: 'phot.jpg'
-    }
-    let form = new FormData()
-    form.append("image",photo)
-    return async(dispatch)=>{
-        try{
-            const response = await getClient.post('/profile',{
-                image : form
+const createFormData = (photo) => {
+    const data = new FormData();
+    data.append('image', {
+        name: 'photo.jpg',
+        uri: Platform.OS === 'android' ? photo : photo.replace('file://', ''),
+    });
+
+    // Object.keys(body).forEach(key => {
+    //     data.append(key, body[key]);
+    // });
+
+    return data;
+};
+
+export const updateImage = async(image) => {
+    const formData = createFormData(image)
+    console.log(formData)
+    try{
+        const token = await AsyncStorage.getItem(KEY_ACCESS_TOKEN);
+        const response = await getClient.post('/profile/image',formData,{
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'multipart/form-data',
+                authorization : `Bearer ${token}`
             }
-            );
-            const data = response.data.data
-            console.log(data)
-            //dispatch({type: FETCH_PROFILE,profile: data})
-        }catch(err){
-            getErrorMessage(err)
-        }
+        });
+        const data = response.data.data
+        console.log(response)
+        return data;
+        //dispatch({type: FETCH_PROFILE,profile: data})
+    }catch(err){
+        console.log(err)
+        getErrorMessage(err)
     }
 }
 
-// export const fetchProfile = async() =>{
-//     try{
-//         const response = await getClient.get('/profile');
-//         return response.data.data;
-//     }catch(error){
-//         getErrorMessage(error)
-//     }
-// }
-
-export const updateProfile = (email,name,phone) =>{
-    return async (dispatch) =>{
-        try{
-            const response = await getClient.patch('/profile',{
-                name: name,
-                email: email,
-                phone: phone,
-            });
-            const data = response.data.data
-            dispatch({type: FETCH_PROFILE,profile: data})
-        }catch(error){
-            getErrorMessage(error)
-        }
+export const updateProfile = async(email,name,phone) =>{
+    try{
+        const response = await getClient.patch('/profile',{
+            name: name,
+            email: email,
+            phone: phone,
+        });
+        const data = response.data.data
+        //dispatch({type: FETCH_PROFILE,profile: data})
+        return data;
+    }catch(error){
+        getErrorMessage(error)
     }
 }

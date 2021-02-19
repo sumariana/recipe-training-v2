@@ -6,6 +6,7 @@ import RecipeItem from '../component/recipe-item';
 import * as recipeAction from '../store/recipe/recipe-action';
 import * as errorHandler from '../store/common/errorHandler';
 import { getNextPage } from '../store/common/Helper';
+import RECIPE_DUMMY from '../models/recipe-dummy';
 
 const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
     const paddingToBottom = 0;
@@ -16,12 +17,12 @@ const FavoriteRecipe = props =>{
     const [recipeList,setRecipeList] = useState([])
     const [page, setPage] = useState(1);
     const [swipeRefresh, setSwipeRefresh] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const dispatch = useDispatch();
+    const [isShimmering, setIsShimmering] = useState(false);
+    const [hasLoad,setHasLoad] = useState(false)
 
 
     const loadProducts = useCallback(async()=>{
-        setIsLoading(true)
+        setIsShimmering(true)
         try{
             const response = await recipeAction.getFavoriteList(1);
             const next = getNextPage(response.links.next)
@@ -30,13 +31,13 @@ const FavoriteRecipe = props =>{
         }catch(err){
             errorHandler.showErrorAlert(err.message)
         }
-        setIsLoading(false)
-    },[dispatch,loadProducts])
+        setSwipeRefresh(false)
+        setIsShimmering(false)
+        setHasLoad(true)
+    },[])
 
     const loadMore = async()=>{
-        setIsLoading(true)
         try{
-            console.log(page)
             const response = await recipeAction.getFavoriteList(page);
             const next = getNextPage(response.links.next)
             setPage(next)
@@ -44,7 +45,6 @@ const FavoriteRecipe = props =>{
         }catch(err){
             errorHandler.showErrorAlert(err.message)
         }
-        setIsLoading(false)
     }
 
     useEffect(()=>{
@@ -62,26 +62,24 @@ const FavoriteRecipe = props =>{
         loadProducts()
     },[])
 
-    if(recipeList.length===0){
-        return(
-            <View style={{flex:1,justifyContent: 'center', alignItems: 'center',backgroundColor:'white'}}>
-                <Text>No Recipe Favorite, add some!</Text>
-            </View>
-        );
-    }
-
     return (
         <View style={{flex:1,backgroundColor:'white'}}>
-            <FlatList
+            {
+                hasLoad && recipeList.length===0 ? 
+                <View style={{flex:1,justifyContent: 'center', alignItems: 'center',backgroundColor:'white'}}>
+                    <Text>No Recipe Favorite, add some!</Text>
+                </View> :
+                <FlatList
                 onRefresh={loadProducts}
                 refreshing = {swipeRefresh}
                 contentContainerStyle={{paddingBottom:50}}
-                data={recipeList}
+                data={isShimmering ? RECIPE_DUMMY : recipeList}
                 keyExtractor={item=> item.id.toString()}
                 renderItem={(itemData)=>(
                     <RecipeItem
                     image = {itemData.item.imageUrl}
                     title = {itemData.item.name}
+                    isShimmering = {isShimmering}
                     onSelectRecipe={()=>{
                         props.navigation.navigate('RecipeDetail',{recipe_id: itemData.item.id})
                     }}
@@ -93,6 +91,7 @@ const FavoriteRecipe = props =>{
                     }
                 }}
             />
+            }
         </View>
     );
 };

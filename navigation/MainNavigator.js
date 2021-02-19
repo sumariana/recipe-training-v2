@@ -9,6 +9,7 @@ import RecipeScreen from '../screens/RecipeScreen';
 import RecipeDetailScreen from '../screens/RecipeDetailScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import WebViewScreen from '../screens/WebViewScreen';
 
 const defaultNavOptions = {
     headerTitleAlign: 'center',
@@ -20,7 +21,8 @@ const defaultNavOptions = {
     headerTitleStyle: {
       fontSize: 20,
       color: 'black',
-      textTransform: 'uppercase'
+      textTransform: 'uppercase',
+      fontFamily:'roboto-bold'
     },
     headerTintColor: 'black'
   };
@@ -35,7 +37,8 @@ const defaultNavOptions = {
         },
         Register:{
           screen: RegisterScreen
-        }
+        },
+        WebView: WebViewScreen 
     },{
       defaultNavigationOptions: defaultNavOptions
     }),
