@@ -164,6 +164,7 @@ const ProfileScreen = props =>{
     }
 
     const bottomSheet = () => (
+        <View style={{paddingTop:10}}>
         <View style={styles.bottomSlider}>
             <Image containerStyle={{ width:40,height:10,marginTop:0 }} source={require('../assets/images/slider.png')}/>
             { Platform.OS === 'android' ? 
@@ -212,6 +213,7 @@ const ProfileScreen = props =>{
                 />
             </View>
             }
+        </View>
         </View>
     );
     const verifyPermissions = async () => {
@@ -404,8 +406,8 @@ const styles = StyleSheet.create({
         backgroundColor:'white',
         alignItems:'center',
         justifyContent:'center',
-        borderTopRightRadius:10,
-        borderTopLeftRadius:10,
+        borderTopRightRadius:20,
+        borderTopLeftRadius:20,
         shadowColor: 'black',
         shadowOpacity: 0.56,
         shadowOffset: {width: 0, height: 2},
