@@ -232,9 +232,7 @@ const RecipeScreen = props =>{
              visible={isShowModal}
              >
                  <View style={styles.modalView}>
-                     <View style={{backgroundColor:'black',flex:1,opacity:0.5}}>
-
-                     </View>
+                     <View style={{backgroundColor:'black',flex:1,opacity:0.5,height:'100%',width:'100%'}}/>
                      <View style={styles.modalCard}>
                         <Image containerStyle={styles.image} source={{ uri:  selectedItem.imageUrl}} />
                         <View style={{position:'absolute',height:20,width:'100%',alignItems:'flex-end',padding:10}}>
@@ -288,7 +286,8 @@ RecipeScreen.navigationOptions = navData => {
 const styles = StyleSheet.create({
     modalView:{
         flex: 1,
-        justifyContent:'center'
+        justifyContent:'center',
+        alignItems:'center'
     },
     modalCard:{
         margin: 20,
