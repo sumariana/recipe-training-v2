@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
         elevation: 6,
         borderRadius: 10,
         backgroundColor: 'white',
-        height: 180,
+        height: 210,
         marginHorizontal: 16,
         marginVertical: 10,
         justifyContent:'flex-end',
