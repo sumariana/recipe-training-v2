@@ -83,10 +83,10 @@ export const updateImage = async(image) => {
                 Authorization : `Bearer ${token}`
             }
         });
-        //const data = response.data.data
+        const data = response.data.data
         console.log(response.data.data)
         return data;
-        //dispatch({type: FETCH_PROFILE,profile: data})
+        
     }catch(err){
         console.log(err)
         getErrorMessage(err)
