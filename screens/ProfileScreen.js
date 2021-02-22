@@ -268,7 +268,11 @@ const ProfileScreen = props =>{
             Alert.alert( "Update Success", "Updating Profile is Success", [
                 { 
                     text: "OK",onPress: ()=>{
-                        console.log(response)
+                        dispatchFormState({type: UPDATE,value: response.name,isValid: true,input: 'name'});
+                        dispatchFormState({type: UPDATE,value: response.phone,isValid: true,input:'phone'});
+                        dispatchFormState({type: UPDATE,value: response.email,isValid: true,input:'email'});
+                        setLoadImage(response.image)
+                        setProfile(response)
                     }
                 }
             ]);
@@ -426,8 +430,7 @@ const styles = StyleSheet.create({
     Image:{
         width:150,
         height:150,
-        resizeMode:'contain'
-
+        borderRadius:150/2
     },
 });
 

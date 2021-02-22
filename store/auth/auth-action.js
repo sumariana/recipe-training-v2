@@ -62,6 +62,7 @@ const createFormData = (photo) => {
     data.append('image', {
         name: 'photo.jpg',
         uri: Platform.OS === 'android' ? photo : photo.replace('file://', ''),
+        type: 'image/jpeg'
     });
 
     // Object.keys(body).forEach(key => {
@@ -73,7 +74,6 @@ const createFormData = (photo) => {
 
 export const updateImage = async(image) => {
     const formData = createFormData(image)
-    console.log(formData)
     try{
         const token = await AsyncStorage.getItem(KEY_ACCESS_TOKEN);
         const response = await axios.post('https://recipe.timedoor.id/api/v1/profile/image',formData,{
@@ -84,7 +84,7 @@ export const updateImage = async(image) => {
             }
         });
         //const data = response.data.data
-        console.log(response)
+        console.log(response.data.data)
         return data;
         //dispatch({type: FETCH_PROFILE,profile: data})
     }catch(err){
