@@ -3,6 +3,7 @@ import getClient from '../common/getClient';
 import { getErrorMessage } from "../common/errorHandler";
 import { Platform } from "react-native";
 import FormData from 'form-data';
+import axios from 'axios';
 
 export const DO_LOGIN = 'DO_LOGIN';
 export const DO_REGISTER = 'DO_REGISTER';
@@ -75,14 +76,14 @@ export const updateImage = async(image) => {
     console.log(formData)
     try{
         const token = await AsyncStorage.getItem(KEY_ACCESS_TOKEN);
-        const response = await getClient.post('/profile/image',formData,{
+        const response = await axios.post('https://recipe.timedoor.id/api/v1/profile/image',formData,{
             headers:{
                 Accept: 'application/json',
-                'Content-Type': 'multipart/form-data',
-                authorization : `Bearer ${token}`
+                'Content-Type': 'multipart/form-data; charset=utf-8;',
+                Authorization : `Bearer ${token}`
             }
         });
-        const data = response.data.data
+        //const data = response.data.data
         console.log(response)
         return data;
         //dispatch({type: FETCH_PROFILE,profile: data})
