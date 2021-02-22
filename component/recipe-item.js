@@ -10,7 +10,7 @@ const ShimmerPlaceHolder = createShimmerPlaceholder(LinearGradient)
 const RecipeItem = props =>{
     return (
         <TouchableOpacity onPress={props.onSelectRecipe} activeOpacity={0.8}>
-            <ShimmerPlaceHolder shimmerStyle ={[styles.card,{height:180,width:'91%'}]} visible={!props.isShimmering}>
+            <ShimmerPlaceHolder shimmerStyle ={[styles.card,{height:210,width:'91%'}]} visible={!props.isShimmering}>
                 <View style={styles.card}>
                     <ImageBackground style={styles.image} source={{ uri: props.image }}>
                         <View style={{backgroundColor:'black',opacity:0.5,width:'100%',height:'100%'}} />
