@@ -54,7 +54,6 @@ const LoginScreen = props =>{
     });
 
     const getToken = useCallback(async()=>{
-        setIsLoading(true)
         try{
             const tkn = await AsyncStorage.getItem(AuthAction.KEY_ACCESS_TOKEN);
             setToken(tkn)
@@ -64,7 +63,6 @@ const LoginScreen = props =>{
         }catch(err){
             console.log(err)
         }
-        setIsLoading(false)
     },[])
 
     useEffect(()=>{

@@ -267,11 +267,10 @@ const ProfileScreen = props =>{
             setIsLoading(false);
             Alert.alert( "Update Success", "Updating Profile is Success", [
                 { 
-                    text: "OK",onPress: ()=>{
-                        setLoadImage(response.image)
-                    }
+                    text: "OK"
                 }
             ]);
+            setLoadImage(response.image)
         }catch(error){
             setIsLoading(false)
             errorHandler.showErrorAlert(error.message)
